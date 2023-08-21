@@ -6,7 +6,7 @@
 /*   By: sbalk <sbalk@student.fr>                   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/19 15:42:58 by sbalk             #+#    #+#             */
-/*   Updated: 2023/08/21 13:45:02 by sbalk            ###   ########.fr       */
+/*   Updated: 2023/08/21 17:24:48 by sbalk            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,11 +14,10 @@
 # define PIPEX
 
 # include "libft.h"
-# include <unistd.h>
-# include <stdlib.h>
-# include <limits.h>
 # include <fcntl.h>
 # include <errno.h>
+# include <stdio.h>
+# include <sys/wait.h>
 
 #define ERR_NOMEM	"Could not allocate memory!"
 #define ERR_CMD		"Command not found"
