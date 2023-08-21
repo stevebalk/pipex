@@ -6,7 +6,7 @@
 /*   By: sbalk <sbalk@student.fr>                   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/19 15:42:58 by sbalk             #+#    #+#             */
-/*   Updated: 2023/08/18 14:41:21 by sbalk            ###   ########.fr       */
+/*   Updated: 2023/08/21 13:45:02 by sbalk            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,10 @@
 # include <limits.h>
 # include <fcntl.h>
 # include <errno.h>
+
+#define ERR_NOMEM	"Could not allocate memory!"
+#define ERR_CMD		"Command not found"
+
 
 typedef enum e_bool
 {
@@ -34,10 +38,10 @@ typedef struct s_pipex
 	t_bool is_invalid_infile;
 	char *infile;
 	char *outfile;
-	char **cmd_paths;
+	char **env_paths;
 	char ***cmd_args;
 	int cmd_count;
-} t_pipex;
+}			t_pipex;
 
 /* String functions */
 

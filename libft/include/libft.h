@@ -6,7 +6,7 @@
 /*   By: sbalk <sbalk@student.fr>                   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/12 18:04:27 by sbalk             #+#    #+#             */
-/*   Updated: 2023/08/07 18:30:55 by sbalk            ###   ########.fr       */
+/*   Updated: 2023/08/21 13:31:19 by sbalk            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -98,11 +98,11 @@ void	*ft_memmove(void *dest, const void *src, size_t n);
 /* Assigns a character n times to a part of the memory*/
 void	*ft_memset(void *s, int c, size_t n);
 
-/* Free every possible array */
-void	ft_free_array(void *arr);
+/* Free array, must be NULLed */
+void	ft_free_array(void **arr);
 
-/* Free every possible 2d array */
-void	ft_free_2darray(void **arr, size_t size);
+/* Free 2D array, must be NULLed */
+void	ft_free_2darray(void ***arr);
 
 /////////////////////
 //    STRING     ////

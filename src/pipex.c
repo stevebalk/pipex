@@ -6,28 +6,80 @@
 /*   By: sbalk <sbalk@student.fr>                   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/16 13:58:52 by sbalk             #+#    #+#             */
-/*   Updated: 2023/08/18 15:30:57 by sbalk            ###   ########.fr       */
+/*   Updated: 2023/08/21 15:10:05 by sbalk            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <pipex.h>
 
-static char	**get_env_paths(char **envp)
+
+void	free_pipex_struct(t_pipex *pipex)
+{
+	ft_free_2darray((void***) pipex->cmd_args);
+	ft_free_array((void**) pipex->env_paths);
+}
+
+void	error_exit(t_pipex *pipex, char *msg)
+{
+	free_pipex_struct(pipex);
+	write(2, msg, ft_strlen(msg));
+	exit(1);
+}
+
+void	get_cmds(t_pipex *pipex, int argc, char **argv)
 {
 	int		i;
-	char	**ret;
+	int		j;
+
+	i = 1;
+	j = 0;
+	pipex->cmd_args = calloc((argc - 2) + 1, sizeof(char *));
+	if (pipex->cmd_args == NULL)
+			error_exit(pipex, ERR_NOMEM);
+	while (i < argc - 2)
+	{
+		pipex->cmd_args[j] = ft_split(argv[i], ' ');
+		if (pipex->cmd_args[j] == NULL)
+			error_exit(pipex, ERR_NOMEM);
+		j++;
+		i++;
+	}
+}
+
+static void	add_slash_to_path(t_pipex *pipex)
+{
+	int	i;
+
+	i = 0;
+	while (pipex->env_paths[i] != NULL)
+		{
+			char *temp = pipex->env_paths[i];
+			pipex->env_paths[i] = ft_strjoin(pipex->env_paths[i], "/");
+			free(temp);
+			if (pipex->env_paths[i] == NULL)
+				error_exit(pipex, ERR_NOMEM);
+			i++;
+		}
+}
+
+
+static void	get_env_paths(t_pipex *pipex, char **envp)
+{
+	int		i;
 
 	i = 0;
 	while (envp[i] != NULL)
 	{
 		if (ft_strncmp("PATH=", envp[i], 5) == 0)
 		{
-			ret = ft_split(envp[i] + 5, ':');
-			return (ret);
+			pipex->env_paths = ft_split(envp[i] + 5, ':');
+			if (pipex->env_paths == NULL)
+				error_exit(pipex, ERR_NOMEM);
+			add_slash_to_path(pipex);
+			break;
 		}
 		i++;
 	}
-	return (NULL);
 }
 
 // void	init_struct(t_pipex *px, int argc, char **argv, char **envp)
@@ -54,16 +106,11 @@ int	main(int argc, char *argv[], char *envp[])
 	// else
 	// init_struct(&px, argc, argv, envp);
 
-	char	**envpath;
+	t_pipex	pipex;
+
 	argc++;
 	argv++;
-
-	envpath = get_env_paths(envp);
-	if (!envpath)
-		ft_printf("NULL returned\n");
-	while (*envpath != NULL)
-	{
-		ft_printf("%s\n", *envpath);
-		envpath++;
-	}
+	get_env_paths(&pipex, envp);
+	get_cmds(&pipex, argc, argv);
+	free_pipex_struct(&pipex);
 }
