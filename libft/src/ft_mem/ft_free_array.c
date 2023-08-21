@@ -1,19 +1,28 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_free_arr.c                                      :+:      :+:    :+:   */
+/*   ft_free_array.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: sbalk <sbalk@student.fr>                   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/08/07 14:00:47 by sbalk             #+#    #+#             */
-/*   Updated: 2023/08/07 14:11:30 by sbalk            ###   ########.fr       */
+/*   Created: 2023/08/07 14:07:40 by sbalk             #+#    #+#             */
+/*   Updated: 2023/08/21 14:40:16 by sbalk            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft.h"
 
-void	ft_free_array(void *arr)
+void	ft_free_array(void **arr)
 {
-	if (arr != NULL)
-		free(arr);
+	size_t	i;
+
+	if (arr == NULL)
+		return ;
+	i = 0;
+	while (arr[i] != NULL)
+	{
+		free(arr[i]);
+		i++;
+	}
+	free (arr);
 }
