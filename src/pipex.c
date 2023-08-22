@@ -6,7 +6,7 @@
 /*   By: sbalk <sbalk@student.fr>                   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/16 13:58:52 by sbalk             #+#    #+#             */
-/*   Updated: 2023/08/21 18:14:35 by sbalk            ###   ########.fr       */
+/*   Updated: 2023/08/22 17:30:16 by sbalk            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,7 +39,6 @@ char	*get_command(t_pipex *pipex, char *command)
 		ret = ft_strjoin(pipex->env_paths[i], command);
 		if (access(ret, X_OK) == 0)
 			return (ret);
-		perror(ret);
 		free(ret);
 		i++;
 	}
@@ -69,16 +68,18 @@ void	child1(t_pipex *pipex)
 	{
 		dup2(fd[1], STDOUT_FILENO);
 		close(fd[0]);
+		dup2(pipex->in_fd, STDIN_FILENO);
 		command = get_command(pipex, pipex->cmd_args[0][0]);
-		execv(command, pipex->cmd_args[0]);
+		execve(command, pipex->cmd_args[0], pipex->envp);
 	}
 	else
 	{
-		waitpid(pid1, 0, 0);
+		waitpid(pid1, NULL, 0);
 		dup2(fd[0], STDIN_FILENO);
 		close(fd[1]);
+		dup2(pipex->out_fd, STDOUT_FILENO);
 		command = get_command(pipex, pipex->cmd_args[1][0]);
-		execv(command, pipex->cmd_args[1]);
+		execve(command, pipex->cmd_args[1], pipex->envp);
 	}
 }
 
@@ -97,8 +98,6 @@ void	get_cmds(t_pipex *pipex, int argc, char **argv)
 		pipex->cmd_args[j] = ft_split(argv[i], ' ');
 		if (pipex->cmd_args[j] == NULL)
 			error_exit(pipex, ERR_NOMEM);
-		printf("%s\n", pipex->cmd_args[j][0]);
-		fflush(stdout);
 		j++;
 		i++;
 	}
@@ -142,58 +141,41 @@ static void	get_env_paths(t_pipex *pipex, char **envp)
 
 void	open_files(t_pipex *pipex, int argc, char **argv)
 {
-	pipex->in_fd = open(argv[0], O_RDONLY);
+	pipex->in_fd = open(argv[0], O_RDONLY, 0644);
 	if (pipex->in_fd == -1)
 	{
-		perror("Infile: ");
-		exit(EXIT_FAILURE);
+		// perror("Infile");
+		// ft_printf("0\n");
+		exit(127);
 	}
-	// ft_printf("IN1: %i\n", pipex->in_fd);
-	// dup2(pipex->in_fd, STDIN_FILENO);
-	// close(pipex->in_fd);
-	// ft_printf("IN2: %i\n", pipex->in_fd);
-	pipex->out_fd = open(argv[argc - 1], O_WRONLY | O_CREAT, 0644);
+	pipex->out_fd = open(argv[argc - 1], O_WRONLY | O_CREAT | O_TRUNC, 0644);
 	if (pipex->out_fd == -1)
 	{
-		perror("Outfile: ");
-		exit(EXIT_FAILURE);
+		perror(argv[argc - 1]);
+		exit(127);
 	}
-	// dup2(pipex->out_fd, STDOUT_FILENO);
-	// close(pipex->out_fd);
 }
 
-// void	init_struct(t_pipex *px, int argc, char **argv, char **envp)
-// {
-// 	px->infile = argv[1];
-// 	px->outfile = argv[argc - 1];
-// 	px->cmd_count = argc - 3;
-// 	px->here_doc = ft_streq("here_doc", argv[1]);
-// 	px->is_invalid_infile = access(argv[1], R_OK);
-// 	px->
-// }
 
 int	main(int argc, char *argv[], char *envp[])
 {
-	// t_pipex	px;
-
-	// if (argc <= 4)
-	// {
-	// 	ft_putnchar_fd("Not enough arguments (min 4)\n", STDERR_FILENO, 29);
-	// 	return (EXIT_FAILURE);
-	// }
-	// else if (ft_streq("here_doc", argv[1]) && argc == 6)
-	// 	return ;
-	// else
-	// init_struct(&px, argc, argv, envp);
-
 	t_pipex	pipex;
 
+	pipex.envp = envp;
 	argc--;
 	argv++;
+	if (argc < 4)
+	{
+		ft_putstr_fd("Not enough arguments (min 4)\n", STDERR_FILENO);
+		return (EXIT_FAILURE);
+	}
+	else if (ft_streq("here_doc", argv[1]) && argc == 6)
+		return (1);
+
+	// ft_printf("Argc: %d\n", argc);
 	open_files(&pipex, argc, argv);
 	get_env_paths(&pipex, envp);
 	get_cmds(&pipex, argc, argv);
 	child1(&pipex);
-	// ft_printf("%s", pipex.cmd_args[0][0]);
 	free_pipex_struct(&pipex);
 }
