@@ -6,7 +6,7 @@
 /*   By: sbalk <sbalk@student.fr>                   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/19 15:42:58 by sbalk             #+#    #+#             */
-/*   Updated: 2023/08/21 17:24:48 by sbalk            ###   ########.fr       */
+/*   Updated: 2023/08/22 16:24:09 by sbalk            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,15 +31,16 @@ typedef enum e_bool
 
 typedef struct s_pipex
 {
-	int in_fd;
-	int out_fd;
-	t_bool here_doc;
-	t_bool is_invalid_infile;
-	char *infile;
-	char *outfile;
-	char **env_paths;
-	char ***cmd_args;
-	int cmd_count;
+	int		in_fd;
+	int		out_fd;
+	t_bool	here_doc;
+	t_bool	is_invalid_infile;
+	char	*infile;
+	char	*outfile;
+	char	**env_paths;
+	char	***cmd_args;
+	int		cmd_count;
+	char	**envp;
 }			t_pipex;
 
 /* String functions */
