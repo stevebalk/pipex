@@ -6,7 +6,7 @@
 /*   By: sbalk <sbalk@student.fr>                   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/16 13:58:52 by sbalk             #+#    #+#             */
-/*   Updated: 2023/08/22 17:30:16 by sbalk            ###   ########.fr       */
+/*   Updated: 2023/08/25 14:41:20 by sbalk            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,12 +19,14 @@ void	free_pipex_struct(t_pipex *pipex)
 	ft_free_array((void**) pipex->env_paths);
 }
 
-void	error_exit(t_pipex *pipex, char *msg)
+void	error_exit(t_pipex *pipex, char *msg, int error_number)
 {
 	if (pipex)
 		free_pipex_struct(pipex);
 	if (msg)
 		write(2, msg, ft_strlen(msg));
+	if (error_number)
+		exit(error_number);
 	exit(EXIT_FAILURE);
 }
 
@@ -42,8 +44,8 @@ char	*get_command(t_pipex *pipex, char *command)
 		free(ret);
 		i++;
 	}
-	perror("Get command: ");
-	error_exit(pipex, NULL);
+	perror("command not found: ");
+	error_exit(pipex, NULL, errno);
 	return (NULL);
 }
 
@@ -56,13 +58,13 @@ void	child1(t_pipex *pipex)
 	if (pipe(fd) == -1)
 	{
 		perror("Pipe: ");
-		error_exit(pipex, NULL);
+		error_exit(pipex, NULL, errno);
 	}
 	pid1 = fork();
 	if (pid1 == -1)
 	{
 		perror("Fork: ");
-		error_exit(pipex, NULL);
+		error_exit(pipex, NULL, errno);
 	}
 	if (pid1 == 0)
 	{
@@ -92,12 +94,12 @@ void	get_cmds(t_pipex *pipex, int argc, char **argv)
 	j = 0;
 	pipex->cmd_args = calloc((argc - 2) + 1, sizeof(char *));
 	if (pipex->cmd_args == NULL)
-			error_exit(pipex, ERR_NOMEM);
+			error_exit(pipex, ERR_NOMEM, errno);
 	while (i < argc - 1)
 	{
 		pipex->cmd_args[j] = ft_split(argv[i], ' ');
 		if (pipex->cmd_args[j] == NULL)
-			error_exit(pipex, ERR_NOMEM);
+			error_exit(pipex, ERR_NOMEM, errno);
 		j++;
 		i++;
 	}
@@ -114,7 +116,7 @@ static void	add_slash_to_path(t_pipex *pipex)
 			pipex->env_paths[i] = ft_strjoin(pipex->env_paths[i], "/");
 			free(temp);
 			if (pipex->env_paths[i] == NULL)
-				error_exit(pipex, ERR_NOMEM);
+				error_exit(pipex, ERR_NOMEM, errno);
 			i++;
 		}
 }
@@ -131,7 +133,7 @@ static void	get_env_paths(t_pipex *pipex, char **envp)
 		{
 			pipex->env_paths = ft_split(envp[i] + 5, ':');
 			if (pipex->env_paths == NULL)
-				error_exit(pipex, ERR_NOMEM);
+				error_exit(pipex, ERR_NOMEM, errno);
 			add_slash_to_path(pipex);
 			break;
 		}
@@ -145,14 +147,13 @@ void	open_files(t_pipex *pipex, int argc, char **argv)
 	if (pipex->in_fd == -1)
 	{
 		// perror("Infile");
-		// ft_printf("0\n");
-		exit(127);
+		exit(errno);
 	}
 	pipex->out_fd = open(argv[argc - 1], O_WRONLY | O_CREAT | O_TRUNC, 0644);
 	if (pipex->out_fd == -1)
 	{
 		perror(argv[argc - 1]);
-		exit(127);
+		exit(errno);
 	}
 }
 
