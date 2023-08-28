@@ -6,7 +6,7 @@
 /*   By: sbalk <sbalk@student.fr>                   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/16 13:58:52 by sbalk             #+#    #+#             */
-/*   Updated: 2023/08/28 14:59:38 by sbalk            ###   ########.fr       */
+/*   Updated: 2023/08/28 17:45:58 by sbalk            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,13 +24,14 @@ void	error_exit(t_pipex *pipex, char *msg, int error_number)
 	if (pipex)
 		free_pipex_struct(pipex);
 	if (msg)
-		write(2, msg, ft_strlen(msg));
+		ft_putendl_fd(msg, 2);
+		// write(2, msg, ft_strlen(msg));
 	if (error_number)
 		exit(error_number);
 	exit(EXIT_FAILURE);
 }
 
-char	*get_command(t_pipex *pipex, char *command)
+char	*get_command(t_pipex *pipex, int command)
 {
 	char	*ret;
 	size_t	i;
@@ -38,9 +39,12 @@ char	*get_command(t_pipex *pipex, char *command)
 	i = 0;
 	while (pipex->env_paths[i])
 	{
-		ret = ft_strjoin(pipex->env_paths[i], command);
-		if (access(ret, X_OK) == 0)
+		ret = ft_strjoin(pipex->env_paths[i], pipex->cmd_args[command][0]);
+		if (access(ret, F_OK | X_OK) == 0)
+		{
+			ft_free_array((void **) pipex->env_paths);
 			return (ret);
+		}
 		free(ret);
 		i++;
 	}
@@ -49,40 +53,61 @@ char	*get_command(t_pipex *pipex, char *command)
 	return (NULL);
 }
 
-void	child1(t_pipex *pipex)
+
+void	parent(t_pipex *pipex, int fd[2], int pid)
 {
-	int		fd[2];
-	int		pid1;
 	char	*command;
+
+	waitpid(pid, NULL, 0);
+	dup2(fd[0], STDIN_FILENO);
+	close(fd[1]);
+	dup2(pipex->out_fd, STDOUT_FILENO);
+	command = get_command(pipex, 1);
+	if (execve(command, pipex->cmd_args[1], pipex->envp) == -1)
+	{
+		perror("Error: Command not found: ");
+		ft_putendl_fd(command, 2);
+		ft_free_array((void*) command);
+		error_exit(pipex, NULL, errno);
+	}
+}
+
+void	child(t_pipex *pipex, int fd[2])
+{
+	char	*command;
+
+	dup2(fd[1], STDOUT_FILENO);
+	close(fd[0]);
+	dup2(pipex->in_fd, STDIN_FILENO);
+	command = get_command(pipex, 0);
+	if (execve(command, pipex->cmd_args[0], pipex->envp) == -1)
+	{
+		perror("Error: Command not found: ");
+		ft_putendl_fd(command, 2);
+		ft_free_array((void*) command);
+		error_exit(pipex, NULL, errno);
+	}
+}
+
+void	execute(t_pipex *pipex)
+{
+	int		pid;
+	int		fd[2];
 
 	if (pipe(fd) == -1)
 	{
 		perror("Pipe: ");
 		error_exit(pipex, NULL, errno);
 	}
-	pid1 = fork();
-	if (pid1 == -1)
+	pid = fork();
+	if (pid == -1)
 	{
 		perror("Fork: ");
 		error_exit(pipex, NULL, errno);
 	}
-	if (pid1 == 0)
-	{
-		dup2(fd[1], STDOUT_FILENO);
-		close(fd[0]);
-		dup2(pipex->in_fd, STDIN_FILENO);
-		command = get_command(pipex, pipex->cmd_args[0][0]);
-		execve(command, pipex->cmd_args[0], pipex->envp);
-	}
-	else
-	{
-		waitpid(pid1, NULL, 0);
-		dup2(fd[0], STDIN_FILENO);
-		close(fd[1]);
-		dup2(pipex->out_fd, STDOUT_FILENO);
-		command = get_command(pipex, pipex->cmd_args[1][0]);
-		execve(command, pipex->cmd_args[1], pipex->envp);
-	}
+	if (pid == 0)
+		child(pipex, fd);
+	parent(pipex, fd, pid);
 }
 
 void	get_cmds(t_pipex *pipex, int argc, char **argv)
@@ -146,13 +171,13 @@ void	open_files(t_pipex *pipex, int argc, char **argv)
 	pipex->in_fd = open(argv[0], O_RDONLY, 0644);
 	if (pipex->in_fd == -1)
 	{
-		perror("Infile");
+		perror(pipex->cmd_args[0][0]);
 		exit(errno);
 	}
 	pipex->out_fd = open(argv[argc - 1], O_WRONLY | O_CREAT | O_TRUNC, 0644);
 	if (pipex->out_fd == -1)
 	{
-		perror("Outfile");
+		perror(pipex->cmd_args[1][0]);
 		exit(errno);
 	}
 }
@@ -172,11 +197,9 @@ int	main(int argc, char *argv[], char *envp[])
 	}
 	else if (ft_streq("here_doc", argv[1]) && argc == 6)
 		return (1);
-
-	// ft_printf("Argc: %d\n", argc);
-	open_files(&pipex, argc, argv);
 	get_env_paths(&pipex, envp);
 	get_cmds(&pipex, argc, argv);
-	child1(&pipex);
+	open_files(&pipex, argc, argv);
+	execute(&pipex);
 	free_pipex_struct(&pipex);
 }
