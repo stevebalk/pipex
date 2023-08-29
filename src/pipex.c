@@ -6,7 +6,7 @@
 /*   By: sbalk <sbalk@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/16 13:58:52 by sbalk             #+#    #+#             */
-/*   Updated: 2023/08/29 14:11:42 by sbalk            ###   ########.fr       */
+/*   Updated: 2023/08/29 17:11:37 by sbalk            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,6 +29,34 @@ void	error_exit(t_pipex *pipex, char *msg, char *perr, int error_number)
 	if (error_number)
 		exit(error_number);
 	exit(EXIT_FAILURE);
+}
+
+int	is_awk(char *str)
+{
+	while (ft_is_space(str))
+		str++;
+	if (ft_strncmp("awk ", str, 4) == 0)
+		return (1);
+	return (0);
+}
+
+char	**parse_awk(t_pipex *pipex, char *str)
+{
+	char	**ret;
+
+	ret = calloc(3, sizeof(char *));
+	if (ret == NULL)
+		error_exit(pipex, ERR_NOMEM, NULL, errno);
+	ret[0] = ft_strdup("awk");
+	str = ft_strnstr(str, "awk", ft_strlen(str));
+	if (str != NULL)
+		str += 3;
+	while (ft_is_space(str))
+		str++;
+	ret[1] = ft_strdup(str);
+	if (ret[1] == NULL)
+		error_exit(pipex, ERR_NOMEM, NULL, errno);
+	return (ret);
 }
 
 char	*get_command(t_pipex *pipex, int command)
@@ -131,7 +159,10 @@ void	get_cmds(t_pipex *pipex, int argc, char **argv)
 		error_exit(pipex, ERR_NOMEM, NULL, errno);
 	while (i < argc - 1)
 	{
-		pipex->cmd_args[j] = ft_split(argv[i], ' ');
+		if (is_awk(argv[i]))
+			pipex->cmd_args[j] = parse_awk(pipex, argv[i]);
+		else
+			pipex->cmd_args[j] = ft_split(argv[i], ' ');
 		if (pipex->cmd_args[j] == NULL)
 			error_exit(pipex, ERR_NOMEM, NULL, errno);
 		j++;
