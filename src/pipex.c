@@ -3,29 +3,29 @@
 /*                                                        :::      ::::::::   */
 /*   pipex.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sbalk <sbalk@student.fr>                   +#+  +:+       +#+        */
+/*   By: sbalk <sbalk@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/16 13:58:52 by sbalk             #+#    #+#             */
-/*   Updated: 2023/08/28 20:26:10 by sbalk            ###   ########.fr       */
+/*   Updated: 2023/08/29 14:11:42 by sbalk            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <pipex.h>
 
-
 void	free_pipex_struct(t_pipex *pipex)
 {
-	ft_free_2darray((void***) pipex->cmd_args);
-	ft_free_array((void**) pipex->env_paths);
+	ft_free_2darray((void ***) pipex->cmd_args);
+	ft_free_array((void **) pipex->env_paths);
 }
 
-void	error_exit(t_pipex *pipex, char *msg, int error_number)
+void	error_exit(t_pipex *pipex, char *msg, char *perr, int error_number)
 {
 	if (pipex)
 		free_pipex_struct(pipex);
 	if (msg)
 		ft_putendl_fd(msg, 2);
-		// write(2, msg, ft_strlen(msg));
+	if (perr)
+		perror(perr);
 	if (error_number)
 		exit(error_number);
 	exit(EXIT_FAILURE);
@@ -55,25 +55,31 @@ char	*get_command(t_pipex *pipex, int command)
 		i++;
 	}
 	ft_putendl_fd("Error: command not found", 2);
-	error_exit(pipex, NULL, errno);
+	error_exit(pipex, NULL, NULL, errno);
 	return (NULL);
 }
-
 
 void	parent(t_pipex *pipex, int fd[2], int pid)
 {
 	char	*command;
+	int		stat_loc;
 
-	waitpid(pid, NULL, 0);
-	dup2(fd[0], STDIN_FILENO);
+	waitpid(pid, &stat_loc, WNOHANG);
+	if (WIFEXITED(stat_loc) && WEXITSTATUS(stat_loc) != 0)
+		exit(WEXITSTATUS(stat_loc));
+	if (dup2(fd[0], STDIN_FILENO) == -1)
+		error_exit(pipex, NULL, "Dup2 error", errno);
+	// close(fd[0]);
+	if (dup2(pipex->out_fd, STDOUT_FILENO) == -1)
+		error_exit(pipex, NULL, "Dup 2 error", errno);
 	close(fd[1]);
-	dup2(pipex->out_fd, STDOUT_FILENO);
+	close(pipex->out_fd);
 	command = get_command(pipex, 1);
 	if (execve(command, pipex->cmd_args[1], pipex->envp) == -1)
 	{
 		perror("Error: command not found");
-		ft_free_array((void*) command);
-		error_exit(pipex, NULL, errno);
+		ft_free_array((void *) command);
+		error_exit(pipex, NULL, NULL, errno);
 	}
 }
 
@@ -81,15 +87,19 @@ void	child(t_pipex *pipex, int fd[2])
 {
 	char	*command;
 
-	dup2(fd[1], STDOUT_FILENO);
+	if (dup2(fd[1], STDOUT_FILENO) == -1)
+		error_exit(pipex, NULL, "Dup 2 error", errno);
+	// close(fd[1]);
+	if (dup2(pipex->in_fd, STDIN_FILENO) == -1)
+		error_exit(pipex, NULL, "Dup 2 error", errno);
 	close(fd[0]);
-	dup2(pipex->in_fd, STDIN_FILENO);
+	close(pipex->in_fd);
 	command = get_command(pipex, 0);
 	if (execve(command, pipex->cmd_args[0], pipex->envp) == -1)
 	{
 		perror("Error: command not found");
-		ft_free_array((void*) command);
-		error_exit(pipex, NULL, errno);
+		ft_free_array((void *) command);
+		error_exit(pipex, NULL, NULL, errno);
 	}
 }
 
@@ -99,19 +109,14 @@ void	execute(t_pipex *pipex)
 	int		fd[2];
 
 	if (pipe(fd) == -1)
-	{
-		perror("Pipe: ");
-		error_exit(pipex, NULL, errno);
-	}
+		error_exit(pipex, NULL, "Pipe: ", errno);
 	pid = fork();
 	if (pid == -1)
-	{
-		perror("Fork: ");
-		error_exit(pipex, NULL, errno);
-	}
+		error_exit(pipex, NULL, "Fork: ", errno);
 	if (pid == 0)
 		child(pipex, fd);
-	parent(pipex, fd, pid);
+	else
+		parent(pipex, fd, pid);
 }
 
 void	get_cmds(t_pipex *pipex, int argc, char **argv)
@@ -123,12 +128,12 @@ void	get_cmds(t_pipex *pipex, int argc, char **argv)
 	j = 0;
 	pipex->cmd_args = calloc((argc - 2) + 1, sizeof(char *));
 	if (pipex->cmd_args == NULL)
-			error_exit(pipex, ERR_NOMEM, errno);
+		error_exit(pipex, ERR_NOMEM, NULL, errno);
 	while (i < argc - 1)
 	{
 		pipex->cmd_args[j] = ft_split(argv[i], ' ');
 		if (pipex->cmd_args[j] == NULL)
-			error_exit(pipex, ERR_NOMEM, errno);
+			error_exit(pipex, ERR_NOMEM, NULL, errno);
 		j++;
 		i++;
 	}
@@ -136,20 +141,20 @@ void	get_cmds(t_pipex *pipex, int argc, char **argv)
 
 static void	add_slash_to_path(t_pipex *pipex)
 {
-	int	i;
+	int		i;
+	char	*temp;
 
 	i = 0;
 	while (pipex->env_paths[i] != NULL)
-		{
-			char *temp = pipex->env_paths[i];
-			pipex->env_paths[i] = ft_strjoin(pipex->env_paths[i], "/");
-			free(temp);
-			if (pipex->env_paths[i] == NULL)
-				error_exit(pipex, ERR_NOMEM, errno);
-			i++;
-		}
+	{
+		temp = pipex->env_paths[i];
+		pipex->env_paths[i] = ft_strjoin(pipex->env_paths[i], "/");
+		free(temp);
+		if (pipex->env_paths[i] == NULL)
+			error_exit(pipex, ERR_NOMEM, NULL, errno);
+		i++;
+	}
 }
-
 
 static void	get_env_paths(t_pipex *pipex, char **envp)
 {
@@ -162,9 +167,9 @@ static void	get_env_paths(t_pipex *pipex, char **envp)
 		{
 			pipex->env_paths = ft_split(envp[i] + 5, ':');
 			if (pipex->env_paths == NULL)
-				error_exit(pipex, ERR_NOMEM, errno);
+				error_exit(pipex, ERR_NOMEM, NULL, errno);
 			add_slash_to_path(pipex);
-			break;
+			break ;
 		}
 		i++;
 	}
@@ -174,18 +179,11 @@ void	open_files(t_pipex *pipex, int argc, char **argv)
 {
 	pipex->in_fd = open(argv[0], O_RDONLY, 0644);
 	if (pipex->in_fd == -1)
-	{
-		perror(pipex->cmd_args[0][0]);
-		exit(errno);
-	}
+		error_exit(pipex, NULL, pipex->cmd_args[0][0], errno);
 	pipex->out_fd = open(argv[argc - 1], O_WRONLY | O_CREAT | O_TRUNC, 0644);
 	if (pipex->out_fd == -1)
-	{
-		perror(pipex->cmd_args[1][0]);
-		exit(errno);
-	}
+		error_exit(pipex, NULL, pipex->cmd_args[1][0], errno);
 }
-
 
 int	main(int argc, char *argv[], char *envp[])
 {
