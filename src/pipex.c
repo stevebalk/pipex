@@ -6,7 +6,7 @@
 /*   By: sbalk <sbalk@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/16 13:58:52 by sbalk             #+#    #+#             */
-/*   Updated: 2023/08/29 17:11:37 by sbalk            ###   ########.fr       */
+/*   Updated: 2023/08/30 16:40:05 by sbalk            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,7 +53,10 @@ char	**parse_awk(t_pipex *pipex, char *str)
 		str += 3;
 	while (ft_is_space(str))
 		str++;
-	ret[1] = ft_strdup(str);
+	if (*str == '\'')
+		ret[1] = ft_strtrim(str, "\'");
+	else
+		ret[1] = ft_strtrim(str, "\"");
 	if (ret[1] == NULL)
 		error_exit(pipex, ERR_NOMEM, NULL, errno);
 	return (ret);
