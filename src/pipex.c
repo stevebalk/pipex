@@ -6,7 +6,7 @@
 /*   By: sbalk <sbalk@student.fr>                   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/16 13:58:52 by sbalk             #+#    #+#             */
-/*   Updated: 2023/08/31 16:22:22 by sbalk            ###   ########.fr       */
+/*   Updated: 2023/08/31 16:28:10 by sbalk            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,19 +37,19 @@ void	handle_error(t_pipex *pipex, char *msg, int is_stderr, int shall_exit)
 	{
 		if (is_stderr)
 		{
-			ft_putendl_fd(pipex->prog_name, 2);
-			ft_putendl_fd(": ", 2);
-			ft_putendl_fd(msg, 2);
-			ft_putendl_fd(" ", 2);
+			ft_putstr_fd(pipex->prog_name, 2);
+			ft_putstr_fd(": ", 2);
+			ft_putstr_fd(msg, 2);
+			ft_putstr_fd(" ", 2);
 			strerror(errno);
-			ft_putendl_fd("\n", 2);
+			ft_putstr_fd("\n", 2);
 		}
 		else
 		{
-			ft_putendl_fd(pipex->prog_name, 2);
-			ft_putendl_fd(": ", 2);
-			ft_putendl_fd(msg, 2);
-			ft_putendl_fd("\n", 2);
+			ft_putstr_fd(pipex->prog_name, 2);
+			ft_putstr_fd(": ", 2);
+			ft_putstr_fd(msg, 2);
+			ft_putstr_fd("\n", 2);
 		}
 	}
 	if (shall_exit)
@@ -74,7 +74,7 @@ char	**parse_awk(t_pipex *pipex, char *str)
 
 	ret = calloc(3, sizeof(char *));
 	if (ret == NULL)
-		handle_error(pipex, "parse awk: ", 1, 1);
+		handle_error(pipex, "calloc: parse awk: ", 1, 1);
 		// error_exit(pipex, NULL, "parse awk", errno);
 	ret[0] = ft_strdup("awk");
 	str = ft_strnstr(str, "awk", ft_strlen(str));
@@ -87,7 +87,7 @@ char	**parse_awk(t_pipex *pipex, char *str)
 	else
 		ret[1] = ft_strtrim(str, "\"");
 	if (ret[1] == NULL)
-		handle_error(pipex, "parse awk: ", 1, 1);
+		handle_error(pipex, "ft_strtrim: parse awk: ", 1, 1);
 		// error_exit(pipex, ERR_NOMEM, NULL, errno);
 	return (ret);
 }
