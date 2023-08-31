@@ -6,7 +6,7 @@
 /*   By: sbalk <sbalk@student.fr>                   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/19 15:42:58 by sbalk             #+#    #+#             */
-/*   Updated: 2023/08/28 17:46:33 by sbalk            ###   ########.fr       */
+/*   Updated: 2023/08/31 15:30:27 by sbalk            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@
 # include <fcntl.h>
 # include <errno.h>
 # include <stdio.h>
+# include <string.h>
 # include <sys/wait.h>
 
 #define ERR_NOMEM	"Could not allocate memory!"
@@ -31,6 +32,7 @@ typedef enum e_bool
 
 typedef struct s_pipex
 {
+	char	*prog_name;
 	int		in_fd;
 	int		out_fd;
 	t_bool	here_doc;
