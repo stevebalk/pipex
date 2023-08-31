@@ -6,7 +6,7 @@
 /*   By: sbalk <sbalk@student.fr>                   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/16 13:58:52 by sbalk             #+#    #+#             */
-/*   Updated: 2023/08/31 18:27:32 by sbalk            ###   ########.fr       */
+/*   Updated: 2023/08/31 18:41:55 by sbalk            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -97,7 +97,7 @@ char	*get_quote_command(t_pipex *pipex, char **str)
 	len = 0;
 	while (ft_is_space(*str))
 		(*str)++;
-	while (!ft_is_space(str[len]))
+	while (!ft_is_space(*str + len))
 		len++;
 	ret = calloc(len + 1, sizeof(char));
 	if (ret == NULL)
