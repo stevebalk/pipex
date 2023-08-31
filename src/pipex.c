@@ -6,7 +6,7 @@
 /*   By: sbalk <sbalk@student.fr>                   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/16 13:58:52 by sbalk             #+#    #+#             */
-/*   Updated: 2023/08/31 16:28:10 by sbalk            ###   ########.fr       */
+/*   Updated: 2023/08/31 16:37:22 by sbalk            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -113,7 +113,7 @@ char	*get_command(t_pipex *pipex, int command)
 		i++;
 	}
 	ret = ft_strjoin(pipex->cmd_args[command][0], ": command not found`");
-	handle_error(NULL, ret, 0, 0);
+	handle_error(pipex, ret, 0, 0);
 	free(ret);
 	return (NULL);
 }
@@ -127,14 +127,15 @@ void	parent(t_pipex *pipex, int fd[2], int pid)
 	if (WIFEXITED(stat_loc) && WEXITSTATUS(stat_loc) != 0)
 		exit(WEXITSTATUS(stat_loc));
 	if (dup2(fd[0], STDIN_FILENO) == -1)
-		handle_error(pipex, "parent dup2 input error", 1, 1);
+		handle_error(pipex, "dup2 (in): parent:", 1, 1);
 		// error_exit(pipex, NULL, "dup2 error", errno);
 	// close(fd[0]);
 	pipex->out_fd = open(pipex->outfile, O_WRONLY | O_CREAT | O_TRUNC, 0644);
 	if (pipex->out_fd == -1)
 		handle_error(pipex, "Could not open file", 1, 1);
 		// error_exit(pipex, NULL, "Could not open file", errno);
-	dup2(pipex->out_fd, STDOUT_FILENO);
+	if (dup2(pipex->out_fd, STDOUT_FILENO) == -1)
+		handle_error(pipex, "dup2 (out): parent:", 1, 1);
 	close(fd[1]);
 	close(pipex->out_fd);
 	command = get_command(pipex, 1);
@@ -157,15 +158,15 @@ void	child(t_pipex *pipex, int fd[2])
 	char	*command;
 
 	if (dup2(fd[1], STDOUT_FILENO) == -1)
-		handle_error(pipex, "child dup2 output error", 1, 1);
+		handle_error(pipex, "dup2 (out): child:", 1, 1);
 		// error_exit(pipex, NULL, "dup 2 error", errno);
 	// close(fd[1]);
 	pipex->in_fd = open(pipex->infile, O_RDONLY, 0644);
 	if (pipex->in_fd == -1)
 		handle_error(pipex, "input:", 1, 1);
 		// error_exit(pipex, NULL, "pipex: input", errno);
-	dup2(pipex->in_fd, STDIN_FILENO);
-		handle_error(pipex, "child dup2 input error", 1, 1);
+	if (dup2(pipex->in_fd, STDIN_FILENO) == -1)
+		handle_error(pipex, "dup2 (in): child:", 1, 1);
 	close(fd[0]);
 	close(pipex->in_fd);
 	command = get_command(pipex, 0);
