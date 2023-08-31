@@ -6,7 +6,7 @@
 /*   By: sbalk <sbalk@student.fr>                   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/16 13:58:52 by sbalk             #+#    #+#             */
-/*   Updated: 2023/08/31 18:41:55 by sbalk            ###   ########.fr       */
+/*   Updated: 2023/08/31 18:49:39 by sbalk            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -102,7 +102,7 @@ char	*get_quote_command(t_pipex *pipex, char **str)
 	ret = calloc(len + 1, sizeof(char));
 	if (ret == NULL)
 		handle_error(pipex, "calloc: get_quote_cmd:", 1, 1);
-	ft_strlcpy(ret, *str, len);
+	ft_strlcpy(ret, *str, len + 1);
 	*str += len;
 	return (ret);
 }
