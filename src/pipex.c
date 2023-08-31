@@ -6,7 +6,7 @@
 /*   By: sbalk <sbalk@student.fr>                   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/16 13:58:52 by sbalk             #+#    #+#             */
-/*   Updated: 2023/08/31 17:52:59 by sbalk            ###   ########.fr       */
+/*   Updated: 2023/08/31 18:27:32 by sbalk            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,6 +73,56 @@ char	**parse_awk(t_pipex *pipex, char *str)
 		ret[1] = ft_strtrim(str, "\"");
 	if (ret[1] == NULL)
 		handle_error(pipex, "ft_strtrim: parse awk: ", 1, 1);
+	return (ret);
+}
+
+int	has_quote(char *str)
+{
+	while (ft_is_space(str))
+		str++;
+	while (!ft_is_space(str))
+		str++;
+	while (ft_is_space(str))
+		str++;
+	if (*str == '\'' || *str == '\"')
+		return (1);
+	return (0);
+}
+
+char	*get_quote_command(t_pipex *pipex, char **str)
+{
+	size_t	len;
+	char	*ret;
+
+	len = 0;
+	while (ft_is_space(*str))
+		(*str)++;
+	while (!ft_is_space(str[len]))
+		len++;
+	ret = calloc(len + 1, sizeof(char));
+	if (ret == NULL)
+		handle_error(pipex, "calloc: get_quote_cmd:", 1, 1);
+	ft_strlcpy(ret, *str, len);
+	*str += len;
+	return (ret);
+}
+
+char	**parse_quote_cmd(t_pipex *pipex, char *str)
+{
+	char	**ret;
+
+	ret = calloc(3, sizeof(char *));
+	if (ret == NULL)
+		handle_error(pipex, "calloc: parse awk: ", 1, 1);
+	ret[0] = get_quote_command(pipex, &str);
+	while (ft_is_space(str))
+		str++;
+	if (*str == '\'')
+		ret[1] = ft_strtrim(str, "\'");
+	else
+		ret[1] = ft_strtrim(str, "\"");
+	if (ret[1] == NULL)
+		handle_error(pipex, "ft_strtrim: parse_quote_cmd: ", 1, 1);
 	return (ret);
 }
 
@@ -186,8 +236,8 @@ void	get_cmds(t_pipex *pipex, int argc, char **argv)
 		handle_error(pipex, "calloc: get_cmds:", 1, 1);
 	while (i < argc - 1)
 	{
-		if (is_awk(argv[i]))
-			pipex->cmd_args[j] = parse_awk(pipex, argv[i]);
+		if (has_quote(argv[i]))
+			pipex->cmd_args[j] = parse_quote_cmd(pipex, argv[i]);
 		else
 			pipex->cmd_args[j] = ft_split(argv[i], ' ');
 		if (pipex->cmd_args[j] == NULL)
