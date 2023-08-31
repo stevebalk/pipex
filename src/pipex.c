@@ -6,7 +6,7 @@
 /*   By: sbalk <sbalk@student.fr>                   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/16 13:58:52 by sbalk             #+#    #+#             */
-/*   Updated: 2023/08/31 16:37:22 by sbalk            ###   ########.fr       */
+/*   Updated: 2023/08/31 16:44:18 by sbalk            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -271,6 +271,7 @@ int	main(int argc, char *argv[], char *envp[])
 
 	pipex.envp = envp;
 	pipex.prog_name = argv[0];
+	pipex.prog_name += 2;
 	argc--;
 	argv++;
 	if (argc < 4)
