@@ -6,7 +6,7 @@
 /*   By: sbalk <sbalk@student.fr>                   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/16 13:58:52 by sbalk             #+#    #+#             */
-/*   Updated: 2023/08/31 14:18:48 by sbalk            ###   ########.fr       */
+/*   Updated: 2023/08/31 14:21:38 by sbalk            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -102,8 +102,9 @@ void	parent(t_pipex *pipex, int fd[2], int pid)
 		error_exit(pipex, NULL, "dup2 error", errno);
 	// close(fd[0]);
 	pipex->out_fd = open(pipex->outfile, O_WRONLY | O_CREAT | O_TRUNC, 0644);
-	if (dup2(pipex->out_fd, STDOUT_FILENO) == -1)
+	if (pipex->out_fd == -1)
 		error_exit(pipex, NULL, "output", errno);
+	dup2(pipex->out_fd, STDOUT_FILENO);
 	// dup2(fd[0], STDIN_FILENO);
 	// dup2(pipex->out_fd, STDOUT_FILENO);
 	close(fd[1]);
@@ -125,8 +126,9 @@ void	child(t_pipex *pipex, int fd[2])
 		error_exit(pipex, NULL, "dup 2 error", errno);
 	// close(fd[1]);
 	pipex->in_fd = open(pipex->infile, O_RDONLY, 0644);
-	if (dup2(pipex->in_fd, STDIN_FILENO) == -1)
+	if (pipex->in_fd == -1)
 		error_exit(pipex, NULL, "input", errno);
+	dup2(pipex->in_fd, STDIN_FILENO);
 	// dup2(fd[1], STDOUT_FILENO);
 	// dup2(pipex->in_fd, STDIN_FILENO);
 	close(fd[0]);
