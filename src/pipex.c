@@ -6,7 +6,7 @@
 /*   By: sbalk <sbalk@student.fr>                   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/16 13:58:52 by sbalk             #+#    #+#             */
-/*   Updated: 2023/08/31 17:16:26 by sbalk            ###   ########.fr       */
+/*   Updated: 2023/08/31 17:52:59 by sbalk            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -115,7 +115,7 @@ void	parent(t_pipex *pipex, int fd[2], int pid)
 	// close(fd[0]);
 	pipex->out_fd = open(pipex->outfile, O_WRONLY | O_CREAT | O_TRUNC, 0644);
 	if (pipex->out_fd == -1)
-		handle_error(pipex, "Could not open file", 1, 1);
+		handle_error(pipex, "could not create file:", 1, 1);
 	if (dup2(pipex->out_fd, STDOUT_FILENO) == -1)
 		handle_error(pipex, "dup2 (out): parent:", 1, 1);
 	close(fd[1]);
@@ -246,7 +246,7 @@ int	main(int argc, char *argv[], char *envp[])
 	argv++;
 	if (argc < 4)
 	{
-		ft_putstr_fd("Not enough arguments (min 4)\n", STDERR_FILENO);
+		ft_putendl_fd("Not enough arguments (min 4)\n", STDERR_FILENO);
 		return (EXIT_FAILURE);
 	}
 	else if (ft_streq("here_doc", argv[1]) && argc == 6)
