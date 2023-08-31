@@ -6,7 +6,7 @@
 /*   By: sbalk <sbalk@student.fr>                   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/16 13:58:52 by sbalk             #+#    #+#             */
-/*   Updated: 2023/08/31 14:34:21 by sbalk            ###   ########.fr       */
+/*   Updated: 2023/08/31 14:38:14 by sbalk            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -139,13 +139,12 @@ void	child(t_pipex *pipex, int fd[2])
 	close(fd[0]);
 	close(pipex->in_fd);
 	command = get_command(pipex, 0);
-	if (command != NULL)
-		if (execve(command, pipex->cmd_args[0], pipex->envp) == -1)
-		{
-			perror("command not found");
-			ft_free_array((void *) command);
-			error_exit(pipex, NULL, NULL, errno);
-		}
+	if (execve(command, pipex->cmd_args[0], pipex->envp) == -1)
+	{
+		perror("command not found");
+		ft_free_array((void *) command);
+		error_exit(pipex, NULL, NULL, errno);
+	}
 }
 
 void	execute(t_pipex *pipex)
