@@ -6,7 +6,7 @@
 /*   By: sbalk <sbalk@student.fr>                   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/16 13:58:52 by sbalk             #+#    #+#             */
-/*   Updated: 2023/08/31 13:50:33 by sbalk            ###   ########.fr       */
+/*   Updated: 2023/08/31 13:53:19 by sbalk            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -98,11 +98,13 @@ void	parent(t_pipex *pipex, int fd[2], int pid)
 	waitpid(pid, &stat_loc, WNOHANG);
 	if (WIFEXITED(stat_loc) && WEXITSTATUS(stat_loc) != 0)
 		exit(WEXITSTATUS(stat_loc));
-	if (dup2(fd[0], STDIN_FILENO) == -1)
-		error_exit(pipex, NULL, "Dup2 error", errno);
+	// if (dup2(fd[0], STDIN_FILENO) == -1)
+	// 	error_exit(pipex, NULL, "Dup2 error", errno);
 	// close(fd[0]);
-	if (dup2(pipex->out_fd, STDOUT_FILENO) == -1)
-		error_exit(pipex, NULL, "Dup 2 error", errno);
+	// if (dup2(pipex->out_fd, STDOUT_FILENO) == -1)
+	// 	error_exit(pipex, NULL, "Dup 2 error", errno);
+	dup2(fd[0], STDIN_FILENO);
+	dup2(pipex->out_fd, STDOUT_FILENO);
 	close(fd[1]);
 	close(pipex->out_fd);
 	command = get_command(pipex, 1);
@@ -118,11 +120,13 @@ void	child(t_pipex *pipex, int fd[2])
 {
 	char	*command;
 
-	if (dup2(fd[1], STDOUT_FILENO) == -1)
-		error_exit(pipex, NULL, "Dup 2 error", errno);
+	// if (dup2(fd[1], STDOUT_FILENO) == -1)
+		// error_exit(pipex, NULL, "Dup 2 error", errno);
 	// close(fd[1]);
-	if (dup2(pipex->in_fd, STDIN_FILENO) == -1)
-		error_exit(pipex, NULL, "Dup 2 error", errno);
+	// if (dup2(pipex->in_fd, STDIN_FILENO) == -1)
+		// error_exit(pipex, NULL, "Dup 2 error", errno);
+	dup2(fd[1], STDOUT_FILENO);
+	dup2(pipex->in_fd, STDIN_FILENO);
 	close(fd[0]);
 	close(pipex->in_fd);
 	command = get_command(pipex, 0);
