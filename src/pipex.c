@@ -6,7 +6,7 @@
 /*   By: sbalk <sbalk@student.fr>                   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/16 13:58:52 by sbalk             #+#    #+#             */
-/*   Updated: 2023/08/31 17:15:06 by sbalk            ###   ########.fr       */
+/*   Updated: 2023/08/31 17:16:26 by sbalk            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -228,7 +228,6 @@ static void	get_env_paths(t_pipex *pipex, char **envp)
 			pipex->env_paths = ft_split(envp[i] + 5, ':');
 			if (pipex->env_paths == NULL)
 				handle_error(pipex, "ft_split: get_env_paths:", 1, 1);
-				// error_exit(pipex, ERR_NOMEM, NULL, errno);
 			add_slash_to_path(pipex);
 			break ;
 		}
