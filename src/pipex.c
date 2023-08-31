@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   pipex.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sbalk <sbalk@student.42.fr>                +#+  +:+       +#+        */
+/*   By: sbalk <sbalk@student.fr>                   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/16 13:58:52 by sbalk             #+#    #+#             */
-/*   Updated: 2023/08/30 16:40:05 by sbalk            ###   ########.fr       */
+/*   Updated: 2023/08/31 13:46:54 by sbalk            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -195,6 +195,8 @@ static void	get_env_paths(t_pipex *pipex, char **envp)
 	int		i;
 
 	i = 0;
+	if (envp == NULL)
+		envp[0] = "PATH=/usr/local/bin:/usr/bin:/bin:/usr/local/sbin:/usr/sbin:/sbin";
 	while (envp[i] != NULL)
 	{
 		if (ft_strncmp("PATH=", envp[i], 5) == 0)
