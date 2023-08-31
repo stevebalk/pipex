@@ -6,7 +6,7 @@
 /*   By: sbalk <sbalk@student.fr>                   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/16 13:58:52 by sbalk             #+#    #+#             */
-/*   Updated: 2023/08/31 14:56:42 by sbalk            ###   ########.fr       */
+/*   Updated: 2023/08/31 15:03:50 by sbalk            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -127,7 +127,7 @@ void	child(t_pipex *pipex, int fd[2])
 	// close(fd[1]);
 	pipex->in_fd = open(pipex->infile, O_RDONLY, 0644);
 	if (pipex->in_fd == -1)
-		error_exit(pipex, NULL, "input", errno);
+		error_exit(pipex, NULL, "pipex: input", errno);
 	dup2(pipex->in_fd, STDIN_FILENO);
 	close(fd[0]);
 	close(pipex->in_fd);
