@@ -6,7 +6,7 @@
 /*   By: sbalk <sbalk@student.fr>                   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/16 13:58:52 by sbalk             #+#    #+#             */
-/*   Updated: 2023/08/31 14:16:46 by sbalk            ###   ########.fr       */
+/*   Updated: 2023/08/31 14:18:48 by sbalk            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -103,7 +103,7 @@ void	parent(t_pipex *pipex, int fd[2], int pid)
 	// close(fd[0]);
 	pipex->out_fd = open(pipex->outfile, O_WRONLY | O_CREAT | O_TRUNC, 0644);
 	if (dup2(pipex->out_fd, STDOUT_FILENO) == -1)
-		error_exit(pipex, NULL, "infile", errno);
+		error_exit(pipex, NULL, "output", errno);
 	// dup2(fd[0], STDIN_FILENO);
 	// dup2(pipex->out_fd, STDOUT_FILENO);
 	close(fd[1]);
@@ -126,7 +126,7 @@ void	child(t_pipex *pipex, int fd[2])
 	// close(fd[1]);
 	pipex->in_fd = open(pipex->infile, O_RDONLY, 0644);
 	if (dup2(pipex->in_fd, STDIN_FILENO) == -1)
-		error_exit(pipex, NULL, "outfile", errno);
+		error_exit(pipex, NULL, "input", errno);
 	// dup2(fd[1], STDOUT_FILENO);
 	// dup2(pipex->in_fd, STDIN_FILENO);
 	close(fd[0]);
