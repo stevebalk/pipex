@@ -6,7 +6,7 @@
 /*   By: sbalk <sbalk@student.fr>                   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/16 13:58:52 by sbalk             #+#    #+#             */
-/*   Updated: 2023/08/31 14:38:14 by sbalk            ###   ########.fr       */
+/*   Updated: 2023/08/31 14:42:56 by sbalk            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -120,7 +120,7 @@ void	parent(t_pipex *pipex, int fd[2], int pid)
 		}
 	}
 	else
-		exit(127);
+		error_exit(pipex, NULL, "command not found", 127);
 }
 
 void	child(t_pipex *pipex, int fd[2])
@@ -143,7 +143,7 @@ void	child(t_pipex *pipex, int fd[2])
 	{
 		perror("command not found");
 		ft_free_array((void *) command);
-		error_exit(pipex, NULL, NULL, errno);
+		// error_exit(pipex, NULL, NULL, errno);
 	}
 }
 
