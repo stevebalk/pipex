@@ -6,7 +6,7 @@
 /*   By: sbalk <sbalk@student.fr>                   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/16 13:58:52 by sbalk             #+#    #+#             */
-/*   Updated: 2023/08/31 16:46:14 by sbalk            ###   ########.fr       */
+/*   Updated: 2023/08/31 16:54:27 by sbalk            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,8 +41,7 @@ void	handle_error(t_pipex *pipex, char *msg, int is_stderr, int shall_exit)
 			ft_putstr_fd(": ", 2);
 			ft_putstr_fd(msg, 2);
 			ft_putstr_fd(" ", 2);
-			strerror(errno);
-			ft_putstr_fd("\n", 2);
+			perror("");
 		}
 		else
 		{
