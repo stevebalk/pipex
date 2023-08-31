@@ -6,7 +6,7 @@
 /*   By: sbalk <sbalk@student.fr>                   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/16 13:58:52 by sbalk             #+#    #+#             */
-/*   Updated: 2023/08/31 13:46:54 by sbalk            ###   ########.fr       */
+/*   Updated: 2023/08/31 13:50:33 by sbalk            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -215,10 +215,12 @@ void	open_files(t_pipex *pipex, int argc, char **argv)
 {
 	pipex->in_fd = open(argv[0], O_RDONLY, 0644);
 	if (pipex->in_fd == -1)
-		error_exit(pipex, NULL, pipex->cmd_args[0][0], errno);
+		perror("input");
+		// error_exit(pipex, NULL, pipex->cmd_args[0][0], errno);
 	pipex->out_fd = open(argv[argc - 1], O_WRONLY | O_CREAT | O_TRUNC, 0644);
 	if (pipex->out_fd == -1)
-		error_exit(pipex, NULL, pipex->cmd_args[1][0], errno);
+		perror("output");
+		// error_exit(pipex, NULL, pipex->cmd_args[1][0], errno);
 }
 
 int	main(int argc, char *argv[], char *envp[])
