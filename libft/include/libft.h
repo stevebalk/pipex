@@ -6,7 +6,7 @@
 /*   By: sbalk <sbalk@student.fr>                   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/12 18:04:27 by sbalk             #+#    #+#             */
-/*   Updated: 2023/08/21 13:31:19 by sbalk            ###   ########.fr       */
+/*   Updated: 2023/08/31 15:52:40 by sbalk            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -150,10 +150,11 @@ char	*ft_substr(char const *s, unsigned int start, size_t len);
 char	*ft_strjoin(char const *s1, char const *s2);
 
 /* Removes occurrences of characters in a string from the start
- * and end of another one */
+ * to the end of another one. Allocates memory if successful */
 char	*ft_strtrim(char const *s1, char const *set);
 
-/* Splits a string according to a given separator character */
+/* Splits a string according to a given separator character.
+Allocates memory if successful */
 char	**ft_split(char const *s, char c);
 
 /* Applies a function (mapping) to every element in a string */

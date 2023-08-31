@@ -6,7 +6,7 @@
 /*   By: sbalk <sbalk@student.fr>                   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/16 13:58:52 by sbalk             #+#    #+#             */
-/*   Updated: 2023/08/31 15:03:50 by sbalk            ###   ########.fr       */
+/*   Updated: 2023/08/31 16:22:22 by sbalk            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,17 +18,45 @@ void	free_pipex_struct(t_pipex *pipex)
 	ft_free_array((void **) pipex->env_paths);
 }
 
-void	error_exit(t_pipex *pipex, char *msg, char *perr, int error_number)
+// void	error_exit(t_pipex *pipex, char *msg, char *perr, int error_number)
+// {
+// 	if (pipex)
+// 		free_pipex_struct(pipex);
+// 	if (msg)
+// 		ft_putendl_fd(msg, 2);
+// 	if (perr)
+// 		perror(perr);
+// 	if (error_number)
+// 		exit(error_number);
+// 	exit(EXIT_FAILURE);
+// }
+
+void	handle_error(t_pipex *pipex, char *msg, int is_stderr, int shall_exit)
 {
-	if (pipex)
-		free_pipex_struct(pipex);
 	if (msg)
-		ft_putendl_fd(msg, 2);
-	if (perr)
-		perror(perr);
-	if (error_number)
-		exit(error_number);
-	exit(EXIT_FAILURE);
+	{
+		if (is_stderr)
+		{
+			ft_putendl_fd(pipex->prog_name, 2);
+			ft_putendl_fd(": ", 2);
+			ft_putendl_fd(msg, 2);
+			ft_putendl_fd(" ", 2);
+			strerror(errno);
+			ft_putendl_fd("\n", 2);
+		}
+		else
+		{
+			ft_putendl_fd(pipex->prog_name, 2);
+			ft_putendl_fd(": ", 2);
+			ft_putendl_fd(msg, 2);
+			ft_putendl_fd("\n", 2);
+		}
+	}
+	if (shall_exit)
+	{
+		free_pipex_struct(pipex);
+		exit(errno);
+	}
 }
 
 int	is_awk(char *str)
@@ -46,7 +74,8 @@ char	**parse_awk(t_pipex *pipex, char *str)
 
 	ret = calloc(3, sizeof(char *));
 	if (ret == NULL)
-		error_exit(pipex, ERR_NOMEM, NULL, errno);
+		handle_error(pipex, "parse awk: ", 1, 1);
+		// error_exit(pipex, NULL, "parse awk", errno);
 	ret[0] = ft_strdup("awk");
 	str = ft_strnstr(str, "awk", ft_strlen(str));
 	if (str != NULL)
@@ -58,7 +87,8 @@ char	**parse_awk(t_pipex *pipex, char *str)
 	else
 		ret[1] = ft_strtrim(str, "\"");
 	if (ret[1] == NULL)
-		error_exit(pipex, ERR_NOMEM, NULL, errno);
+		handle_error(pipex, "parse awk: ", 1, 1);
+		// error_exit(pipex, ERR_NOMEM, NULL, errno);
 	return (ret);
 }
 
@@ -78,13 +108,13 @@ char	*get_command(t_pipex *pipex, int command)
 	{
 		ret = ft_strjoin(pipex->env_paths[i], pipex->cmd_args[command][0]);
 		if (access(ret, F_OK | X_OK) == 0)
-		{
-			ft_free_array((void **) pipex->env_paths);
 			return (ret);
-		}
 		free(ret);
 		i++;
 	}
+	ret = ft_strjoin(pipex->cmd_args[command][0], ": command not found`");
+	handle_error(NULL, ret, 0, 0);
+	free(ret);
 	return (NULL);
 }
 
@@ -97,11 +127,13 @@ void	parent(t_pipex *pipex, int fd[2], int pid)
 	if (WIFEXITED(stat_loc) && WEXITSTATUS(stat_loc) != 0)
 		exit(WEXITSTATUS(stat_loc));
 	if (dup2(fd[0], STDIN_FILENO) == -1)
-		error_exit(pipex, NULL, "dup2 error", errno);
+		handle_error(pipex, "parent dup2 input error", 1, 1);
+		// error_exit(pipex, NULL, "dup2 error", errno);
 	// close(fd[0]);
 	pipex->out_fd = open(pipex->outfile, O_WRONLY | O_CREAT | O_TRUNC, 0644);
 	if (pipex->out_fd == -1)
-		error_exit(pipex, NULL, "Could not open file", errno);
+		handle_error(pipex, "Could not open file", 1, 1);
+		// error_exit(pipex, NULL, "Could not open file", errno);
 	dup2(pipex->out_fd, STDOUT_FILENO);
 	close(fd[1]);
 	close(pipex->out_fd);
@@ -111,11 +143,13 @@ void	parent(t_pipex *pipex, int fd[2], int pid)
 		if (execve(command, pipex->cmd_args[1], pipex->envp) == -1)
 		{
 			ft_free_array((void *) command);
-			error_exit(pipex, "command not found", NULL, errno);
+			handle_error(pipex, "execve parent error:", 1, 1);
+			// error_exit(pipex, "command not found", NULL, errno);
 		}
 	}
 	else
-		error_exit(pipex, "command not found", NULL, 127);
+		exit(127);
+		// error_exit(pipex, "command not found", NULL, 127);
 }
 
 void	child(t_pipex *pipex, int fd[2])
@@ -123,20 +157,27 @@ void	child(t_pipex *pipex, int fd[2])
 	char	*command;
 
 	if (dup2(fd[1], STDOUT_FILENO) == -1)
-		error_exit(pipex, NULL, "dup 2 error", errno);
+		handle_error(pipex, "child dup2 output error", 1, 1);
+		// error_exit(pipex, NULL, "dup 2 error", errno);
 	// close(fd[1]);
 	pipex->in_fd = open(pipex->infile, O_RDONLY, 0644);
 	if (pipex->in_fd == -1)
-		error_exit(pipex, NULL, "pipex: input", errno);
+		handle_error(pipex, "input:", 1, 1);
+		// error_exit(pipex, NULL, "pipex: input", errno);
 	dup2(pipex->in_fd, STDIN_FILENO);
+		handle_error(pipex, "child dup2 input error", 1, 1);
 	close(fd[0]);
 	close(pipex->in_fd);
 	command = get_command(pipex, 0);
-	if (execve(command, pipex->cmd_args[0], pipex->envp) == -1)
+	if (command != NULL)
 	{
-		perror("command not found");
-		ft_free_array((void *) command);
-		// error_exit(pipex, NULL, NULL, errno);
+		if (execve(command, pipex->cmd_args[0], pipex->envp) == -1)
+		{
+			handle_error(pipex, "command not found", 1, 0);
+			// perror("command not found");
+			ft_free_array((void *) command);
+			// error_exit(pipex, NULL, NULL, errno);
+		}
 	}
 }
 
@@ -146,10 +187,12 @@ void	execute(t_pipex *pipex)
 	int		fd[2];
 
 	if (pipe(fd) == -1)
-		error_exit(pipex, NULL, "Pipe: ", errno);
+		handle_error(pipex, "execute: pipe:", 1, 1);
+		// error_exit(pipex, NULL, "Pipe: ", errno);
 	pid = fork();
 	if (pid == -1)
-		error_exit(pipex, NULL, "Fork: ", errno);
+		handle_error(pipex, "execute: fork:", 1, 1);
+		// error_exit(pipex, NULL, "Fork: ", errno);
 	if (pid == 0)
 		child(pipex, fd);
 	else
@@ -165,7 +208,8 @@ void	get_cmds(t_pipex *pipex, int argc, char **argv)
 	j = 0;
 	pipex->cmd_args = calloc((argc - 2) + 1, sizeof(char *));
 	if (pipex->cmd_args == NULL)
-		error_exit(pipex, ERR_NOMEM, NULL, errno);
+		handle_error(pipex, "calloc: get_cmds:", 1, 1);
+		// error_exit(pipex, ERR_NOMEM, NULL, errno);
 	while (i < argc - 1)
 	{
 		if (is_awk(argv[i]))
@@ -173,7 +217,8 @@ void	get_cmds(t_pipex *pipex, int argc, char **argv)
 		else
 			pipex->cmd_args[j] = ft_split(argv[i], ' ');
 		if (pipex->cmd_args[j] == NULL)
-			error_exit(pipex, ERR_NOMEM, NULL, errno);
+			handle_error(pipex, "ft_split: get_cmds:", 1, 1);
+			// error_exit(pipex, ERR_NOMEM, NULL, errno);
 		j++;
 		i++;
 	}
@@ -191,7 +236,8 @@ static void	add_slash_to_path(t_pipex *pipex)
 		pipex->env_paths[i] = ft_strjoin(pipex->env_paths[i], "/");
 		free(temp);
 		if (pipex->env_paths[i] == NULL)
-			error_exit(pipex, ERR_NOMEM, NULL, errno);
+			handle_error(pipex, "ft_strjoin: add_slash:", 1, 1);
+			// error_exit(pipex, ERR_NOMEM, NULL, errno);
 		i++;
 	}
 }
@@ -209,7 +255,8 @@ static void	get_env_paths(t_pipex *pipex, char **envp)
 		{
 			pipex->env_paths = ft_split(envp[i] + 5, ':');
 			if (pipex->env_paths == NULL)
-				error_exit(pipex, ERR_NOMEM, NULL, errno);
+				handle_error(pipex, "ft_split: get_env_paths:", 1, 1);
+				// error_exit(pipex, ERR_NOMEM, NULL, errno);
 			add_slash_to_path(pipex);
 			break ;
 		}
@@ -222,6 +269,7 @@ int	main(int argc, char *argv[], char *envp[])
 	t_pipex	pipex;
 
 	pipex.envp = envp;
+	pipex.prog_name = argv[0];
 	argc--;
 	argv++;
 	if (argc < 4)
