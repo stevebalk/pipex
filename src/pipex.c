@@ -6,7 +6,7 @@
 /*   By: sbalk <sbalk@student.fr>                   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/16 13:58:52 by sbalk             #+#    #+#             */
-/*   Updated: 2023/09/01 16:16:32 by sbalk            ###   ########.fr       */
+/*   Updated: 2023/09/01 17:03:19 by sbalk            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,12 +76,74 @@ char	**parse_awk(t_pipex *pipex, char *str)
 	return (ret);
 }
 
+// int	has_quote(char *str)
+// {
+// 	char	quote;
+// 	size_t	len;
+
+// 	quote = ' ';
+// 	while (ft_is_space(str) && *str != '\0')
+// 		str++;
+// 	while (!ft_is_space(str) && *str != '\0')
+// 		str++;
+// 	while (ft_is_space(str) && *str != '\0')
+// 		str++;
+// 	if (*str == '\'' || *str == '\"')
+// 		quote = *str;
+// 	else
+// 		return (0);
+// 	len = ft_strlen(str);
+// 	while (ft_is_space(&str[len - 1]) && len > 1)
+// 		len--;
+// 	if (str[len - 1] == quote && len > 1)
+// 		return (1);
+// 	return (0);
+// }
+
+// char	*get_quote_command(t_pipex *pipex, char **str)
+// {
+// 	size_t	len;
+// 	char	*ret;
+
+// 	len = 0;
+// 	while (ft_is_space(*str))
+// 		(*str)++;
+// 	while (!ft_is_space(*str + len))
+// 		len++;
+// 	ret = ft_calloc(len + 1, sizeof(char));
+// 	if (ret == NULL)
+// 		handle_error(pipex, "calloc: get_quote_cmd:", 1, 1);
+// 	ft_strlcpy(ret, *str, len + 1);
+// 	*str += len;
+// 	return (ret);
+// }
+
+// char	**parse_quote_cmd(t_pipex *pipex, char *str)
+// {
+// 	char	**ret;
+// 	size_t	last_quote_pos;
+
+// 	ret = ft_calloc(3, sizeof(char *));
+// 	if (ret == NULL)
+// 		handle_error(pipex, "calloc: parse awk: ", 1, 1);
+// 	ret[0] = get_quote_command(pipex, &str);
+// 	last_quote_pos = ft_strlen(str);
+// 	while (str[last_quote_pos - 1] != *str)
+// 		last_quote_pos--;
+// 	ret[1] = ft_substr(str, 0, last_quote_pos - 2);
+// 	// while (ft_is_space(str) && *str != '\0')
+// 	// 	str++;
+// 	// if (*str == '\'')
+// 	// 	ret[1] = ft_strtrim(str, "\'");
+// 	// else
+// 	// 	ret[1] = ft_strtrim(str, "\"");
+// 	if (ret[1] == NULL)
+// 		handle_error(pipex, "ft_strtrim: parse_quote_cmd: ", 1, 1);
+// 	return (ret);
+// }
+
 int	has_quote(char *str)
 {
-	char	quote;
-	size_t	len;
-
-	quote = ' ';
 	while (ft_is_space(str) && *str != '\0')
 		str++;
 	while (!ft_is_space(str) && *str != '\0')
@@ -89,13 +151,6 @@ int	has_quote(char *str)
 	while (ft_is_space(str) && *str != '\0')
 		str++;
 	if (*str == '\'' || *str == '\"')
-		quote = *str;
-	else
-		return (0);
-	len = ft_strlen(str);
-	while (ft_is_space(&str[len - 1]) && len > 1)
-		len--;
-	if (str[len - 1] == quote && len > 1)
 		return (1);
 	return (0);
 }
@@ -121,22 +176,17 @@ char	*get_quote_command(t_pipex *pipex, char **str)
 char	**parse_quote_cmd(t_pipex *pipex, char *str)
 {
 	char	**ret;
-	size_t	last_quote_pos;
 
 	ret = ft_calloc(3, sizeof(char *));
 	if (ret == NULL)
 		handle_error(pipex, "calloc: parse awk: ", 1, 1);
 	ret[0] = get_quote_command(pipex, &str);
-	last_quote_pos = ft_strlen(str);
-	while (str[last_quote_pos - 1] != *str)
-		last_quote_pos--;
-	ret[1] = ft_substr(str, 0, last_quote_pos - 2);
-	// while (ft_is_space(str) && *str != '\0')
-	// 	str++;
-	// if (*str == '\'')
-	// 	ret[1] = ft_strtrim(str, "\'");
-	// else
-	// 	ret[1] = ft_strtrim(str, "\"");
+	while (ft_is_space(str) && *str != '\0')
+		str++;
+	if (*str == '\'')
+		ret[1] = ft_strtrim(str, "\'");
+	else
+		ret[1] = ft_strtrim(str, "\"");
 	if (ret[1] == NULL)
 		handle_error(pipex, "ft_strtrim: parse_quote_cmd: ", 1, 1);
 	return (ret);
@@ -310,7 +360,7 @@ int	main(int argc, char *argv[], char *envp[])
 	pipex.prog_name += 2;
 	argc--;
 	argv++;
-	if (argc < 4)
+	if (argc != 4)
 	{
 		ft_putendl_fd("Not enough arguments (min 4)\n", STDERR_FILENO);
 		return (EXIT_FAILURE);
