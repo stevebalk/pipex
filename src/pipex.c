@@ -6,7 +6,7 @@
 /*   By: sbalk <sbalk@student.fr>                   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/16 13:58:52 by sbalk             #+#    #+#             */
-/*   Updated: 2023/09/01 14:38:59 by sbalk            ###   ########.fr       */
+/*   Updated: 2023/09/01 14:44:10 by sbalk            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -236,10 +236,10 @@ void	get_cmds(t_pipex *pipex, int argc, char **argv)
 		handle_error(pipex, "calloc: get_cmds:", 1, 1);
 	while (i < argc - 1)
 	{
-		if (has_quote(argv[i]))
-			pipex->cmd_args[j] = parse_quote_cmd(pipex, argv[i]);
-		else
-			pipex->cmd_args[j] = ft_split(argv[i], ' ');
+		// if (has_quote(argv[i]))
+		// 	pipex->cmd_args[j] = parse_quote_cmd(pipex, argv[i]);
+		// else
+		pipex->cmd_args[j] = ft_split(argv[i], ' ');
 		if (pipex->cmd_args[j] == NULL)
 			handle_error(pipex, "ft_split: get_cmds:", 1, 1);
 		j++;
