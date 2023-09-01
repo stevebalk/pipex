@@ -6,7 +6,7 @@
 /*   By: sbalk <sbalk@student.fr>                   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/16 13:58:52 by sbalk             #+#    #+#             */
-/*   Updated: 2023/09/01 13:59:00 by sbalk            ###   ########.fr       */
+/*   Updated: 2023/09/01 14:01:52 by sbalk            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -133,7 +133,7 @@ char	*get_command(t_pipex *pipex, int command)
 
 	i = 0;
 	ret = pipex->cmd_args[command][0];
-	if (access(ret, F_OK) == 0)
+	if (access(ret, F_OK | X_OK) == 0)
 	{
 		ft_free_array((void **) pipex->env_paths);
 		return (ret);
@@ -141,7 +141,7 @@ char	*get_command(t_pipex *pipex, int command)
 	while (pipex->env_paths[i])
 	{
 		ret = ft_strjoin(pipex->env_paths[i], pipex->cmd_args[command][0]);
-		if (access(ret, F_OK) == 0)
+		if (access(ret, F_OK | X_OK) == 0)
 			return (ret);
 		free(ret);
 		i++;
@@ -236,8 +236,8 @@ void	get_cmds(t_pipex *pipex, int argc, char **argv)
 		handle_error(pipex, "calloc: get_cmds:", 1, 1);
 	while (i < argc - 1)
 	{
-		if (has_quote(argv[i]))
-			pipex->cmd_args[j] = parse_quote_cmd(pipex, argv[i]);
+		if (is_awk(argv[i]))
+			pipex->cmd_args[j] = parse_awk(pipex, argv[i]);
 		else
 			pipex->cmd_args[j] = ft_split(argv[i], ' ');
 		if (pipex->cmd_args[j] == NULL)
