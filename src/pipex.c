@@ -6,7 +6,7 @@
 /*   By: sbalk <sbalk@student.fr>                   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/16 13:58:52 by sbalk             #+#    #+#             */
-/*   Updated: 2023/09/01 14:01:52 by sbalk            ###   ########.fr       */
+/*   Updated: 2023/09/01 14:38:59 by sbalk            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,7 +58,7 @@ char	**parse_awk(t_pipex *pipex, char *str)
 {
 	char	**ret;
 
-	ret = calloc(3, sizeof(char *));
+	ret = ft_calloc(3, sizeof(char *));
 	if (ret == NULL)
 		handle_error(pipex, "calloc: parse awk: ", 1, 1);
 	ret[0] = ft_strdup("awk");
@@ -99,7 +99,7 @@ char	*get_quote_command(t_pipex *pipex, char **str)
 		(*str)++;
 	while (!ft_is_space(*str + len))
 		len++;
-	ret = calloc(len + 1, sizeof(char));
+	ret = ft_calloc(len + 1, sizeof(char));
 	if (ret == NULL)
 		handle_error(pipex, "calloc: get_quote_cmd:", 1, 1);
 	ft_strlcpy(ret, *str, len + 1);
@@ -111,7 +111,7 @@ char	**parse_quote_cmd(t_pipex *pipex, char *str)
 {
 	char	**ret;
 
-	ret = calloc(3, sizeof(char *));
+	ret = ft_calloc(3, sizeof(char *));
 	if (ret == NULL)
 		handle_error(pipex, "calloc: parse awk: ", 1, 1);
 	ret[0] = get_quote_command(pipex, &str);
@@ -176,7 +176,7 @@ void	parent(t_pipex *pipex, int fd[2], int pid)
 		if (execve(command, pipex->cmd_args[1], pipex->envp) == -1)
 		{
 			ft_free_array((void *) command);
-			handle_error(pipex, "execve parent error:", 1, 1);
+			handle_error(pipex, "parent: execve:", 1, 1);
 		}
 	}
 	else
@@ -202,7 +202,7 @@ void	child(t_pipex *pipex, int fd[2])
 	{
 		if (execve(command, pipex->cmd_args[0], pipex->envp) == -1)
 		{
-			handle_error(pipex, "command not found", 1, 0);
+			handle_error(pipex, "child: execve", 1, 0);
 			ft_free_array((void *) command);
 		}
 	}
@@ -231,13 +231,13 @@ void	get_cmds(t_pipex *pipex, int argc, char **argv)
 
 	i = 1;
 	j = 0;
-	pipex->cmd_args = calloc((argc - 2) + 1, sizeof(char *));
+	pipex->cmd_args = ft_calloc((argc - 2) + 1, sizeof(char *));
 	if (pipex->cmd_args == NULL)
 		handle_error(pipex, "calloc: get_cmds:", 1, 1);
 	while (i < argc - 1)
 	{
-		if (is_awk(argv[i]))
-			pipex->cmd_args[j] = parse_awk(pipex, argv[i]);
+		if (has_quote(argv[i]))
+			pipex->cmd_args[j] = parse_quote_cmd(pipex, argv[i]);
 		else
 			pipex->cmd_args[j] = ft_split(argv[i], ' ');
 		if (pipex->cmd_args[j] == NULL)
