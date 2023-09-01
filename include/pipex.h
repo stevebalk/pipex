@@ -6,12 +6,12 @@
 /*   By: sbalk <sbalk@student.fr>                   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/19 15:42:58 by sbalk             #+#    #+#             */
-/*   Updated: 2023/08/31 17:25:24 by sbalk            ###   ########.fr       */
+/*   Updated: 2023/09/01 18:13:25 by sbalk            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef PIPEX
-# define PIPEX
+#ifndef PIPEX_H
+# define PIPEX_H
 
 # include "libft.h"
 # include <fcntl.h>
@@ -19,6 +19,9 @@
 # include <stdio.h>
 # include <string.h>
 # include <sys/wait.h>
+
+# define CMD_0 = 0
+# define CMD_1 = 1
 
 typedef struct s_pipex
 {
