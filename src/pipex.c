@@ -6,7 +6,7 @@
 /*   By: sbalk <sbalk@student.fr>                   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/16 13:58:52 by sbalk             #+#    #+#             */
-/*   Updated: 2023/09/01 18:27:22 by sbalk            ###   ########.fr       */
+/*   Updated: 2023/09/04 17:28:58 by sbalk            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -324,27 +324,27 @@ static void	add_slash_to_path(t_pipex *pipex)
 	}
 }
 
-static void	get_env_paths(t_pipex *pipex, char **envp)
+static void	get_env_paths(t_pipex *pipex)
 {
 	int		i;
-	char	*path;
+	char	*defp;
 
 	i = 0;
-	path = "PATH=/usr/local/bin:/usr/bin:/bin:/usr/local/sbin:/usr/sbin:/sbin";
-	if (envp[0] == NULL)
-		envp[0] = path;
-	while (envp[i] != NULL)
+	defp = "PATH=/usr/local/bin:/usr/bin:/bin:/usr/local/sbin:/usr/sbin:/sbin";
+	if (pipex->envp[0] == NULL)
+		pipex->env_paths = ft_split(defp, ':');
+	while (pipex->envp[0] != NULL)
 	{
-		if (ft_strncmp("PATH=", envp[i], 5) == 0)
+		if (ft_strncmp("PATH=", pipex->envp[i], 5) == 0)
 		{
-			pipex->env_paths = ft_split(envp[i] + 5, ':');
+			pipex->env_paths = ft_split(pipex->envp[i] + 5, ':');
 			if (pipex->env_paths == NULL)
 				handle_error(pipex, "ft_split: get_env_paths:", 1, 1);
-			add_slash_to_path(pipex);
 			break ;
 		}
 		i++;
 	}
+	add_slash_to_path(pipex);
 }
 
 void	intitalize_struct(int *argc, char **argv[], t_pipex *pipex, char *envp[])
@@ -369,7 +369,7 @@ int	main(int argc, char *argv[], char *envp[])
 		return (EXIT_FAILURE);
 	}
 	intitalize_struct(&argc, &argv, &pipex, envp);
-	get_env_paths(&pipex, envp);
+	get_env_paths(&pipex);
 	get_cmds(&pipex, argc, argv);
 	execute(&pipex);
 	free_pipex_struct(&pipex);
