@@ -6,7 +6,7 @@
 #    By: sbalk <sbalk@student.fr>                   +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/06/19 15:43:43 by sbalk             #+#    #+#              #
-#    Updated: 2023/08/18 15:12:03 by sbalk            ###   ########.fr        #
+#    Updated: 2023/09/08 14:02:00 by sbalk            ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -34,6 +34,10 @@ CYAN = \033[0;96m
 WHITE = \033[0;97m
 
 SRC_FILES	=	pipex \
+				error_handling \
+				execute \
+				parsing_one \
+				parsing_two \
 
 
 SRC				=	$(addprefix $(SRC_DIR), $(addsuffix .c, $(SRC_FILES)))
