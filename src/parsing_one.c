@@ -6,7 +6,7 @@
 /*   By: sbalk <sbalk@student.fr>                   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/08 13:44:01 by sbalk             #+#    #+#             */
-/*   Updated: 2023/09/13 15:28:15 by sbalk            ###   ########.fr       */
+/*   Updated: 2023/09/13 15:34:42 by sbalk            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,7 +70,7 @@ char	*get_command(t_pipex *pipex, int command)
 		i++;
 	}
 	ret = ft_strjoin(pipex->cmd_args[command][0], ": command not found");
-	ft_putstr_fd(ret, 2);
+	handle_error(pipex, ret, 0, 0);
 	free(ret);
 	return (NULL);
 }
