@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ft_split.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sbalk <sbalk@student.42.fr>                +#+  +:+       +#+        */
+/*   By: sbalk <sbalk@student.fr>                   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/14 15:58:32 by sbalk             #+#    #+#             */
-/*   Updated: 2023/05/18 13:37:56 by sbalk            ###   ########.fr       */
+/*   Updated: 2023/09/13 16:01:17 by sbalk            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,7 +64,7 @@ char	**ft_split(char const *s, char c)
 	string_count = 0;
 	while (s[i] != '\0')
 	{
-		while (s[i] == c)
+		while (s[i] == c && s[i] != '\0')
 			i++;
 		if (s[i] != c && s[i] != '\0')
 			string_count++;
