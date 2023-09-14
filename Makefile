@@ -6,7 +6,7 @@
 #    By: sbalk <sbalk@student.fr>                   +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/06/19 15:43:43 by sbalk             #+#    #+#              #
-#    Updated: 2023/09/08 14:02:00 by sbalk            ###   ########.fr        #
+#    Updated: 2023/09/13 15:44:27 by sbalk            ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -68,7 +68,7 @@ fclean:		clean
 			@echo "$(CYAN)$(NAME) executable files cleaned!$(DEF_COLOR)"
 
 re:			fclean all
-			@echo "$(GREEN)Cleaned and rebuilt everything for $(NAME)push_swap!$(DEF_COLOR)"
+			@echo "$(GREEN)Cleaned and rebuilt everything for $(NAME)!$(DEF_COLOR)"
 
 norm:
 			@norminette $(SRC) include/$(NAME).h| grep -v Norme -B1 || true

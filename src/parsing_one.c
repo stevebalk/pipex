@@ -6,7 +6,7 @@
 /*   By: sbalk <sbalk@student.fr>                   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/08 13:44:01 by sbalk             #+#    #+#             */
-/*   Updated: 2023/09/13 15:34:42 by sbalk            ###   ########.fr       */
+/*   Updated: 2023/09/14 18:11:43 by sbalk            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,53 +49,100 @@ void	get_cmds(t_pipex *pipex, int argc, char **argv)
 	}
 }
 
-char	*get_command(t_pipex *pipex, int command)
+void	get_cmd_paths(t_pipex *p)
 {
-	char	*ret;
-	size_t	i;
+	int	i;
+	int	j;
+	char *error_msg;
 
 	i = 0;
-	ret = pipex->cmd_args[command][0];
-	if (access(ret, F_OK | X_OK) == 0)
+	p->cmd_paths = ft_calloc(sizeof(char *), p->command_count + 1);
+	if (p->cmd_paths == NULL)
+		handle_error(p, "get_cmd_paths: calloc:", 1, 1);
+	while (p->cmd_args[i] != NULL)
 	{
-		ft_free_array((void **) pipex->env_paths);
-		return (ret);
-	}
-	while (pipex->env_paths[i])
-	{
-		ret = ft_strjoin(pipex->env_paths[i], pipex->cmd_args[command][0]);
-		if (access(ret, F_OK | X_OK) == 0)
-			return (ret);
-		free(ret);
-		i++;
-	}
-	ret = ft_strjoin(pipex->cmd_args[command][0], ": command not found");
-	handle_error(pipex, ret, 0, 0);
-	free(ret);
-	return (NULL);
-}
-
-static void	add_slash_to_path(t_pipex *pipex)
-{
-	int		i;
-	char	*temp;
-
-	i = 0;
-	while (pipex->env_paths[i] != NULL)
-	{
-		temp = pipex->env_paths[i];
-		pipex->env_paths[i] = ft_strjoin(pipex->env_paths[i], "/");
-		free(temp);
-		if (pipex->env_paths[i] == NULL)
-			handle_error(pipex, "ft_strjoin: add_slash:", 1, 1);
+		j = 0;
+		if (access(p->cmd_args[i][0], F_OK) == 0)
+		{
+			p->cmd_paths[i] = p->cmd_args[i][0];
+			i++;
+			continue ;
+		}
+		while (p->env_paths[j] != NULL)
+		{
+			p->cmd_paths[i] = ft_strjoin(p->env_paths[j++], p->cmd_args[i][0]);
+			if (access(p->cmd_paths[i], F_OK) == 0)
+				break ;
+			free(p->cmd_paths[i]);
+			p->cmd_paths[i] = NULL;
+		}
+		if (p->cmd_paths[i] == NULL)
+		{
+			error_msg = ft_strjoin(p->cmd_args[i][0], ": command not found");
+			handle_error(p, error_msg, 0, 0);
+			free(error_msg);
+		}
 		i++;
 	}
 }
+
+// 	while (pipex->cmd_args[i] != NULL)
+// 	{
+// 		pipex->cmd_paths[i] = ft_strjoin(pipex->cmd_args[0], "/");
+// 		if (pipex->cmd_paths[i] == NULL)
+// 			handle_error(pipex, "ft_split: get_cmd_paths:", 1, 1);
+// 		i++;
+// 	}
+// }
+
+// char	*get_command(t_pipex *pipex, int command)
+// {
+// 	char	*ret;
+// 	size_t	i;
+
+// 	i = 0;
+// 	ret = pipex->cmd_args[command][0];
+// 	if (access(ret, F_OK | X_OK) == 0)
+// 	{
+// 		ft_free_array((void **) pipex->env_paths);
+// 		return (ret);
+// 	}
+// 	while (pipex->env_paths[i])
+// 	{
+// 		ret = ft_strjoin(pipex->env_paths[i], pipex->cmd_args[command][0]);
+// 		if (access(ret, F_OK | X_OK) == 0)
+// 			return (ret);
+// 		free(ret);
+// 		i++;
+// 	}
+// 	ret = ft_strjoin(pipex->cmd_args[i], ": command not found");
+// 	handle_error(pipex, ret, 0, 0);
+// 	free(ret);
+// 	return (NULL);
+// }
+
+// static void	add_slash_to_path(t_pipex *pipex)
+// {
+// 	int		i;
+// 	char	*temp;
+
+// 	i = 0;
+// 	while (pipex->env_paths[i] != NULL)
+// 	{
+// 		temp = pipex->env_paths[i];
+// 		pipex->env_paths[i] = ft_strjoin(pipex->env_paths[i], "/");
+// 		free(temp);
+// 		if (pipex->env_paths[i] == NULL)
+// 			handle_error(pipex, "ft_strjoin: add_slash:", 1, 1);
+// 		i++;
+// 	}
+// }
 
 void	get_env_paths(t_pipex *pipex)
 {
 	int		i;
 	char	*defp;
+	char	*temp;
 
 	i = 0;
 	defp = "PATH=/usr/local/bin:/usr/bin:/bin:/usr/local/sbin:/usr/sbin:/sbin";
@@ -108,9 +155,18 @@ void	get_env_paths(t_pipex *pipex)
 			pipex->env_paths = ft_split(pipex->envp[i] + 5, ':');
 			if (pipex->env_paths == NULL)
 				handle_error(pipex, "ft_split: get_env_paths:", 1, 1);
+			i = 0;
+			while (pipex->env_paths[i])
+			{
+				temp = pipex->env_paths[i];
+				pipex->env_paths[i] = ft_strjoin(pipex->env_paths[i], "/");
+				free(temp);
+				if (pipex->env_paths[i++] == NULL)
+					handle_error(pipex, "ft_strjoin: add_slash:", 1, 1);
+			}
 			break ;
 		}
 		i++;
 	}
-	add_slash_to_path(pipex);
+	// add_slash_to_path(pipex);
 }

@@ -6,7 +6,7 @@
 /*   By: sbalk <sbalk@student.fr>                   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/12 18:04:27 by sbalk             #+#    #+#             */
-/*   Updated: 2023/08/31 15:52:40 by sbalk            ###   ########.fr       */
+/*   Updated: 2023/09/14 16:30:30 by sbalk            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -148,6 +148,9 @@ char	*ft_substr(char const *s, unsigned int start, size_t len);
 
 /* Concatenates two strings allocating enough space first */
 char	*ft_strjoin(char const *s1, char const *s2);
+
+/* Concatenates n strings allocating enough space first */
+char	*ft_strnjoin(size_t arg_count, ...);
 
 /* Removes occurrences of characters in a string from the start
  * to the end of another one. Allocates memory if successful */

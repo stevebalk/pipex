@@ -6,7 +6,7 @@
 /*   By: sbalk <sbalk@student.fr>                   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/16 13:58:52 by sbalk             #+#    #+#             */
-/*   Updated: 2023/09/12 16:55:24 by sbalk            ###   ########.fr       */
+/*   Updated: 2023/09/14 17:17:41 by sbalk            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,6 +41,7 @@ int	main(int argc, char *argv[], char *envp[])
 	init_struct(&argc, &argv, &pipex, envp);
 	get_env_paths(&pipex);
 	get_cmds(&pipex, argc, argv);
+	get_cmd_paths(&pipex);
 	execute(&pipex);
 	free_pipex_struct(&pipex);
 }
