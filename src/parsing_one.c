@@ -6,7 +6,7 @@
 /*   By: sbalk <sbalk@student.fr>                   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/08 13:44:01 by sbalk             #+#    #+#             */
-/*   Updated: 2023/09/14 18:11:43 by sbalk            ###   ########.fr       */
+/*   Updated: 2023/09/14 19:37:41 by sbalk            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -145,7 +145,7 @@ void	get_env_paths(t_pipex *pipex)
 	char	*temp;
 
 	i = 0;
-	defp = "PATH=/usr/local/bin:/usr/bin:/bin:/usr/local/sbin:/usr/sbin:/sbin";
+	defp = "/usr/local/bin:/usr/bin:/bin:/usr/local/sbin:/usr/sbin:/sbin";
 	if (pipex->envp[0] == NULL)
 		pipex->env_paths = ft_split(defp, ':');
 	while (pipex->envp[0] != NULL)
@@ -155,18 +155,17 @@ void	get_env_paths(t_pipex *pipex)
 			pipex->env_paths = ft_split(pipex->envp[i] + 5, ':');
 			if (pipex->env_paths == NULL)
 				handle_error(pipex, "ft_split: get_env_paths:", 1, 1);
-			i = 0;
-			while (pipex->env_paths[i])
-			{
-				temp = pipex->env_paths[i];
-				pipex->env_paths[i] = ft_strjoin(pipex->env_paths[i], "/");
-				free(temp);
-				if (pipex->env_paths[i++] == NULL)
-					handle_error(pipex, "ft_strjoin: add_slash:", 1, 1);
-			}
 			break ;
 		}
 		i++;
 	}
-	// add_slash_to_path(pipex);
+	i = 0;
+	while (pipex->env_paths[i])
+	{
+		temp = pipex->env_paths[i];
+		pipex->env_paths[i] = ft_strjoin(pipex->env_paths[i], "/");
+		free(temp);
+		if (pipex->env_paths[i++] == NULL)
+			handle_error(pipex, "ft_strjoin: add_slash:", 1, 1);
+	}
 }
