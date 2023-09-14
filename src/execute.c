@@ -6,7 +6,7 @@
 /*   By: sbalk <sbalk@student.fr>                   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/08 13:48:32 by sbalk             #+#    #+#             */
-/*   Updated: 2023/09/14 18:03:02 by sbalk            ###   ########.fr       */
+/*   Updated: 2023/09/14 18:24:48 by sbalk            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,7 +38,7 @@ static void	parent(t_pipex *pipex, int fd[2])
 static void	child(t_pipex *pipex, int fd[2])
 {
 	if (pipex->cmd_paths[0] == NULL)
-		exit(127);
+		return ;
 	if (dup2(fd[1], STDOUT_FILENO) == -1)
 		handle_error(pipex, "dup2 (out): child:", 1, 1);
 	pipex->in_fd = open(pipex->infile, O_RDONLY, 0644);
