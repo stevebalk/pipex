@@ -6,7 +6,7 @@
 /*   By: sbalk <sbalk@student.fr>                   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/08 13:44:01 by sbalk             #+#    #+#             */
-/*   Updated: 2023/09/18 17:08:51 by sbalk            ###   ########.fr       */
+/*   Updated: 2023/09/18 17:26:17 by sbalk            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -90,7 +90,7 @@ void	search_valid_cmd_path(t_pipex *p, int i)
 void	get_cmd_paths(t_pipex *p)
 {
 	int	i;
-	// int	j;
+	int	j;
 	char *error_msg;
 
 	i = 0;
@@ -99,29 +99,29 @@ void	get_cmd_paths(t_pipex *p)
 		handle_error(p, "get_cmd_paths: calloc:", 1, 1);
 	while (p->cmd_args[i] != NULL)
 	{
-		// j = 0;
+		j = 0;
 		if (access(p->cmd_args[i][0], F_OK) == 0)
 		{
 			p->cmd_paths[i] = p->cmd_args[i][0];
 			i++;
 			continue ;
 		}
-		search_valid_cmd_path(p, i);
-		// while (p->env_paths[j] != NULL)
-		// {
-		// 	p->cmd_paths[i] = ft_strjoin(p->env_paths[j], p->cmd_args[i][0]);
-		// 	if (p->cmd_paths[i] == NULL)
-		// 		handle_error(p, "Search_valid_cmd_path: ft_strjoin:", 1, 1);
-		// 	if (access(p->cmd_paths[i], F_OK) == 0)
-		// 	{
-		// 		printf("cmd_path[%d] = %s\n", i, p->cmd_paths[i]);
-		// 		printf("%s\n", p->cmd_args[i][0]);
-		// 		break ;
-		// 	}
-		// 	free(p->cmd_paths[i]);
-		// 	p->cmd_paths[i] = NULL;
-		// 	j++;
-		// }
+		// search_valid_cmd_path(p, i);
+		while (p->env_paths[j] != NULL)
+		{
+			p->cmd_paths[i] = ft_strjoin(p->env_paths[j], p->cmd_args[i][0]);
+			if (p->cmd_paths[i] == NULL)
+				handle_error(p, "Search_valid_cmd_path: ft_strjoin:", 1, 1);
+			if (access(p->cmd_paths[i], F_OK) == 0)
+			{
+				printf("cmd_path[%d] = %s\n", i, p->cmd_paths[i]);
+				printf("%s\n", p->cmd_args[i][0]);
+				break ;
+			}
+			free(p->cmd_paths[i]);
+			p->cmd_paths[i] = NULL;
+			j++;
+		}
 		if (p->cmd_paths[i] == NULL)
 		{
 			error_msg = ft_strjoin(p->cmd_args[i][0], ": command not found");
