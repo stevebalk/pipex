@@ -6,7 +6,7 @@
 /*   By: sbalk <sbalk@student.fr>                   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/16 13:58:52 by sbalk             #+#    #+#             */
-/*   Updated: 2023/09/14 17:17:41 by sbalk            ###   ########.fr       */
+/*   Updated: 2023/09/18 16:58:12 by sbalk            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@ void	free_pipex_struct(t_pipex *pipex)
 {
 	ft_free_2darray((void ***) pipex->cmd_args);
 	ft_free_array((void **) pipex->env_paths);
+	ft_free_array((void **) pipex->cmd_paths);
 }
 
 static void	init_struct(int *argc, char **argv[], t_pipex *pipex, char *envp[])
