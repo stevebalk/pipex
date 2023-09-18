@@ -6,7 +6,7 @@
 /*   By: sbalk <sbalk@student.fr>                   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/08 13:44:01 by sbalk             #+#    #+#             */
-/*   Updated: 2023/09/18 17:26:17 by sbalk            ###   ########.fr       */
+/*   Updated: 2023/09/18 17:27:55 by sbalk            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,11 +76,7 @@ void	search_valid_cmd_path(t_pipex *p, int i)
 		if (p->cmd_paths[i] == NULL)
 			handle_error(p, "Search_valid_cmd_path: ft_strjoin:", 1, 1);
 		if (access(p->cmd_paths[i], F_OK) == 0)
-		{
-			printf("cmd_path[%d] = %s\n", i, p->cmd_paths[i]);
-			printf("%s\n", p->cmd_args[i][0]);
 			return ;
-		}
 		free(p->cmd_paths[i]);
 		p->cmd_paths[i] = NULL;
 		j++;
@@ -113,11 +109,7 @@ void	get_cmd_paths(t_pipex *p)
 			if (p->cmd_paths[i] == NULL)
 				handle_error(p, "Search_valid_cmd_path: ft_strjoin:", 1, 1);
 			if (access(p->cmd_paths[i], F_OK) == 0)
-			{
-				printf("cmd_path[%d] = %s\n", i, p->cmd_paths[i]);
-				printf("%s\n", p->cmd_args[i][0]);
 				break ;
-			}
 			free(p->cmd_paths[i]);
 			p->cmd_paths[i] = NULL;
 			j++;
