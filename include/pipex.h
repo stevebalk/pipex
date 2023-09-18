@@ -6,7 +6,7 @@
 /*   By: sbalk <sbalk@student.fr>                   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/19 15:42:58 by sbalk             #+#    #+#             */
-/*   Updated: 2023/09/14 17:18:11 by sbalk            ###   ########.fr       */
+/*   Updated: 2023/09/18 14:15:24 by sbalk            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,7 +39,6 @@ typedef struct s_pipex
 
 char	**parse_quote_cmd(t_pipex *pipex, char *str);
 void	get_env_paths(t_pipex *pipex);
-// char	*get_command(t_pipex *pipex, int command);
 void	get_cmds(t_pipex *pipex, int argc, char **argv);
 void	execute(t_pipex *pipex);
 void	handle_error(t_pipex *pipex, char *msg, int is_stderr, int shall_exit);

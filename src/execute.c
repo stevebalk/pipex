@@ -6,7 +6,7 @@
 /*   By: sbalk <sbalk@student.fr>                   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/08 13:48:32 by sbalk             #+#    #+#             */
-/*   Updated: 2023/09/14 18:24:48 by sbalk            ###   ########.fr       */
+/*   Updated: 2023/09/18 14:23:20 by sbalk            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,13 +24,8 @@ static void	parent(t_pipex *pipex, int fd[2])
 	close(fd[1]);
 	close(pipex->out_fd);
 	if (pipex->cmd_paths[1] != NULL)
-	{
 		if (execve(pipex->cmd_paths[1], pipex->cmd_args[1], pipex->envp) == -1)
-		{
-			// ft_free_array((void *) pipex->cmd_paths[1]);
 			handle_error(pipex, "parent: execve:", 1, 1);
-		}
-	}
 	free_pipex_struct(pipex);
 	exit(127);
 }
@@ -49,10 +44,7 @@ static void	child(t_pipex *pipex, int fd[2])
 	close(fd[0]);
 	close(pipex->in_fd);
 	if (execve(pipex->cmd_paths[0], pipex->cmd_args[0], pipex->envp) == -1)
-	{
 		handle_error(pipex, "child: execve", 1, 0);
-		// ft_free_array((void *) pipex->cmd_paths[0]);
-	}
 }
 
 void	execute(t_pipex *pipex)
@@ -68,11 +60,11 @@ void	execute(t_pipex *pipex)
 		handle_error(pipex, "execute: fork:", 1, 1);
 	if (pid == 0)
 		child(pipex, fd);
-	// ft_printf("PID: %d\n", pid);
-	waitpid(pid, &stat_loc, WNOHANG);
-	// ft_printf("StatLoc: %d: \n", stat_loc);
-	if (WIFEXITED(stat_loc) && WEXITSTATUS(stat_loc) != 0)
-		exit(WEXITSTATUS(stat_loc));
 	if (pid > 0)
+	{
+		waitpid(pid, &stat_loc, WNOHANG);
+		if (WIFEXITED(stat_loc) && WEXITSTATUS(stat_loc) != 0)
+			exit(WEXITSTATUS(stat_loc));
 		parent(pipex, fd);
+	}
 }
