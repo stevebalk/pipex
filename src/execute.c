@@ -6,7 +6,7 @@
 /*   By: sbalk <sbalk@student.fr>                   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/08 13:48:32 by sbalk             #+#    #+#             */
-/*   Updated: 2023/09/18 14:23:20 by sbalk            ###   ########.fr       */
+/*   Updated: 2023/09/25 12:06:26 by sbalk            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,6 +53,7 @@ void	execute(t_pipex *pipex)
 	int		fd[2];
 	int		stat_loc;
 
+	stat_loc = 0;
 	if (pipe(fd) == -1)
 		handle_error(pipex, "execute: pipe:", 1, 1);
 	pid = fork();
@@ -62,9 +63,11 @@ void	execute(t_pipex *pipex)
 		child(pipex, fd);
 	if (pid > 0)
 	{
-		waitpid(pid, &stat_loc, WNOHANG);
-		if (WIFEXITED(stat_loc) && WEXITSTATUS(stat_loc) != 0)
-			exit(WEXITSTATUS(stat_loc));
+		while (waitpid(pid, &stat_loc, WNOHANG) > 0)
+		{
+			if (WIFEXITED(stat_loc) && WEXITSTATUS(stat_loc) != 0)
+				exit(WEXITSTATUS(stat_loc));
+		}
 		parent(pipex, fd);
 	}
 }
