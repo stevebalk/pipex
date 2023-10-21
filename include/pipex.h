@@ -6,7 +6,7 @@
 /*   By: sbalk <sbalk@student.fr>                   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/19 15:42:58 by sbalk             #+#    #+#             */
-/*   Updated: 2023/09/18 14:15:24 by sbalk            ###   ########.fr       */
+/*   Updated: 2023/10/21 13:06:24 by sbalk            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,9 +19,6 @@
 # include <stdio.h>
 # include <string.h>
 # include <sys/wait.h>
-
-# define CMD_0 = 0
-# define CMD_1 = 1
 
 typedef struct s_pipex
 {
